@@ -727,7 +727,7 @@ function SellerHome() {
         </div>
 
         {/* Tarjetas: se deslizan sobre la capa */}
-        <div className="flex-1 min-h-0 relative z-10 pt-4 px-6 flex flex-col overflow-hidden">
+        <div className="flex-1 min-h-0 relative z-10 pt-4 px-2 flex flex-col overflow-hidden">
           <DragScrollList>
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
@@ -793,8 +793,8 @@ function DragScrollList({ children }: { children: React.ReactNode }) {
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onPointerLeave={endDrag}
-      className="flex-1 overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
-      style={{ touchAction: 'pan-y', cursor: state.current.dragging ? 'grabbing' : 'grab' }}
+      className="flex-1 overflow-y-auto no-scrollbar min-h-0 px-3 pt-3 bg-transparent overscroll-contain relative z-10"
+      style={{ touchAction: 'pan-y', cursor: state.current.dragging ? 'grabbing' : 'grab', paddingBottom: 'calc(env(safe-area-inset-bottom) + 120px)' }}
     >
       {children}
     </div>
@@ -923,15 +923,7 @@ function VisitCard({ name, address, status, time, orderValue, isDraggable, onChe
         </button>
       </div>
       
-      <div className="mt-6 flex items-center justify-between relative z-10">
-        <div className="flex -space-x-3">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="w-8 h-8 rounded-full border-2 border-slate-900 bg-slate-800 overflow-hidden ring-1 ring-white/10">
-               <img src={`https://picsum.photos/seed/shop${i}/100/100`} alt="shop" referrerPolicy="no-referrer" />
-            </div>
-          ))}
-        </div>
-        
+      <div className="mt-6 flex items-center justify-end relative z-10">
         {status === 'visited' ? (
           <p className="text-xl font-black text-emerald-400 font-mono tracking-tighter">${orderValue?.toLocaleString() || '0'}</p>
         ) : status === 'current' ? (

@@ -352,6 +352,7 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
         color: 'var(--app-fg)',
         borderColor: 'var(--app-border)',
         paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
       }}
     >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
@@ -474,7 +475,86 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
       <div className="flex-1 overflow-hidden relative z-10 flex flex-col">
         {children}
       </div>
+
+      {/* Bottom Navigation (Seller) */}
+      <nav
+        className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-[55] border-t backdrop-blur-2xl"
+        style={{
+          borderColor: 'var(--app-border)',
+          background: 'color-mix(in srgb, var(--app-bg) 82%, transparent)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
+      >
+        <div className="px-4 py-3 grid grid-cols-5 gap-2">
+          <BottomNavItem
+            active={location === '/seller'}
+            label="Inicio"
+            icon={<MapPin size={18} />}
+            onClick={() => navigate('/seller')}
+          />
+          <BottomNavItem
+            active={location.startsWith('/seller/order')}
+            label="Pedido"
+            icon={<Plus size={18} />}
+            onClick={() => navigate('/seller/order/new')}
+            primary
+          />
+          <BottomNavItem
+            active={location.startsWith('/seller/catalog')}
+            label="Catálogo"
+            icon={<Package size={18} />}
+            onClick={() => navigate('/seller/catalog')}
+          />
+          <BottomNavItem
+            active={location.startsWith('/seller/customers')}
+            label="Clientes"
+            icon={<Users size={18} />}
+            onClick={() => navigate('/seller/customers')}
+          />
+          <BottomNavItem
+            active={location.startsWith('/seller/history')}
+            label="Pedidos"
+            icon={<History size={18} />}
+            onClick={() => navigate('/seller/history')}
+          />
+        </div>
+      </nav>
     </div>
+  );
+}
+
+function BottomNavItem({
+  active,
+  label,
+  icon,
+  onClick,
+  primary = false,
+}: {
+  active: boolean;
+  label: string;
+  icon: React.ReactNode;
+  onClick: () => void;
+  primary?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center justify-center gap-1 rounded-2xl py-2 transition-all active:scale-95 border',
+        primary
+          ? active
+            ? 'bg-indigo-600 text-white border-indigo-500/30 shadow-lg shadow-indigo-600/30'
+            : 'bg-indigo-600/20 text-indigo-300 border-indigo-500/20'
+          : active
+            ? 'bg-white/10 text-white border-white/10'
+            : 'bg-transparent text-slate-500 border-transparent hover:bg-white/5 hover:text-slate-200'
+      )}
+      title={label}
+      type="button"
+    >
+      <div className={cn(primary ? '' : active ? 'text-white' : 'text-slate-500')}>{icon}</div>
+      <span className="text-[9px] font-black uppercase tracking-widest italic">{label}</span>
+    </button>
   );
 }
 

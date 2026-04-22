@@ -100,6 +100,33 @@
   background: color-mix(in srgb, var(--app-accent) 55%, transparent);
 }
 
+/* Scrollbar visible para listas largas (ej. Ruta de Hoy) */
+.route-scrollbar {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: color-mix(in srgb, var(--app-accent) 70%, transparent) transparent;
+}
+
+.route-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.route-scrollbar::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--app-card) 40%, transparent);
+  border-radius: 8px;
+}
+
+.route-scrollbar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--app-accent) 70%, transparent);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+.route-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--app-accent);
+  background-clip: content-box;
+}
+
 .no-scrollbar {
   -ms-overflow-style: none; /* IE/Edge legacy */
   scrollbar-width: none; /* Firefox */

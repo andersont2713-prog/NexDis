@@ -3,6 +3,17 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getSupabaseAdmin } from './server/supabaseAdmin.ts';
+import {
+  sbListCategories,
+  sbInsertCategory,
+  sbListProducts,
+  sbInsertProduct,
+  sbListCustomers,
+  sbInsertCustomer,
+  sbInsertOrder,
+  sbStats,
+} from './server/supabaseRepo.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -70,26 +81,63 @@ async function startServer() {
     });
   });
 
-  app.get('/api/inventory', (req, res) => res.json(db.inventory));
-  app.get('/api/categories', (req, res) => res.json(db.categories));
-  app.post('/api/categories', (req, res) => {
+  app.get('/api/inventory', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) return res.json(await sbListProducts(sb));
+      res.json(db.inventory);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al leer inventario' });
+    }
+  });
+
+  app.get('/api/categories', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) return res.json(await sbListCategories(sb));
+      res.json(db.categories);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al leer categorías' });
+    }
+  });
+
+  app.post('/api/categories', async (req, res) => {
     const name = String(req.body?.name ?? '').trim();
     if (!name) return res.status(400).json({ error: 'name is required' });
 
-    const exists = db.categories.some((c: string) => c.toLowerCase() === name.toLowerCase());
-    if (exists) return res.status(409).json({ error: 'category already exists' });
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        await sbInsertCategory(sb, name);
+        broadcast({ type: 'categories:updated', payload: { name } });
+        return res.status(201).json({ name });
+      }
 
-    db.categories.push(name);
-    broadcast({ type: 'categories:updated', payload: { name } });
-    return res.status(201).json({ name });
+      const exists = db.categories.some((c: string) => c.toLowerCase() === name.toLowerCase());
+      if (exists) return res.status(409).json({ error: 'category already exists' });
+
+      db.categories.push(name);
+      broadcast({ type: 'categories:updated', payload: { name } });
+      return res.status(201).json({ name });
+    } catch (e: any) {
+      const msg = String(e?.message ?? e ?? '');
+      if (msg.includes('duplicate') || msg.includes('unique') || e?.code === '23505') {
+        return res.status(409).json({ error: 'category already exists' });
+      }
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al crear categoría' });
+    }
   });
-  app.post('/api/inventory', (req, res) => {
+
+  app.post('/api/inventory', async (req, res) => {
     const body = req.body ?? {};
     if (!body?.name || !body?.sku) {
       return res.status(400).json({ error: 'name and sku are required' });
     }
 
-    const product = {
+    const payload = {
       id: `PROD-${Date.now()}`,
       name: body.name,
       sku: body.sku,
@@ -103,24 +151,74 @@ async function startServer() {
       category: body.category ?? 'General',
     };
 
-    db.inventory.push(product);
-    broadcast({ type: 'inventory:updated', payload: product });
-    return res.status(201).json(product);
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        const saved = await sbInsertProduct(sb, payload);
+        broadcast({ type: 'inventory:updated', payload: saved });
+        return res.status(201).json(saved);
+      }
+
+      db.inventory.push(payload);
+      broadcast({ type: 'inventory:updated', payload });
+      return res.status(201).json(payload);
+    } catch (e: any) {
+      const msg = String(e?.message ?? e ?? '');
+      if (msg.includes('duplicate') || msg.includes('unique') || e?.code === '23505') {
+        return res.status(409).json({ error: 'SKU ya existe' });
+      }
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al crear producto' });
+    }
   });
-  app.get('/api/customers', (req, res) => res.json(db.customers));
-  
-  app.post('/api/customers', (req, res) => {
-    const customer = { ...req.body, id: `CUST-00${db.customers.length + 1}`, currentBalance: 0 };
-    db.customers.push(customer);
-    broadcast({ type: 'customers:created', payload: customer });
-    res.status(201).json(customer);
+
+  app.get('/api/customers', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) return res.json(await sbListCustomers(sb));
+      res.json(db.customers);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al leer clientes' });
+    }
   });
-  
-  app.post('/api/orders', (req, res) => {
-    const order = { ...req.body, id: Date.now().toString(), status: 'pending', createdAt: new Date() };
-    db.orders.push(order);
-    broadcast({ type: 'orders:created', payload: order });
-    res.json(order);
+
+  app.post('/api/customers', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        const customer = await sbInsertCustomer(sb, req.body ?? {});
+        broadcast({ type: 'customers:created', payload: customer });
+        return res.status(201).json(customer);
+      }
+
+      const customer = { ...req.body, id: `CUST-00${db.customers.length + 1}`, currentBalance: 0 };
+      db.customers.push(customer);
+      broadcast({ type: 'customers:created', payload: customer });
+      res.status(201).json(customer);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al crear cliente' });
+    }
+  });
+
+  app.post('/api/orders', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      const base = {...req.body, id: Date.now().toString(), status: 'pending', createdAt: new Date()};
+      if (sb) {
+        const order = await sbInsertOrder(sb, base);
+        broadcast({ type: 'orders:created', payload: order });
+        return res.json(order);
+      }
+
+      db.orders.push(base);
+      broadcast({ type: 'orders:created', payload: base });
+      res.json(base);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al crear pedido' });
+    }
   });
 
   app.post('/api/visits', (req, res) => {
@@ -129,15 +227,23 @@ async function startServer() {
     res.json(visit);
   });
 
-  app.get('/api/stats', (req, res) => {
-    const totalSales = db.orders.reduce((sum, o) => sum + o.total, 0);
-    const lowStockCount = db.inventory.filter(i => i.stock <= i.minStock).length;
-    res.json({
-      totalSales,
-      orderCount: db.orders.length,
-      customerCount: db.customers.length,
-      lowStockCount
-    });
+  app.get('/api/stats', async (req, res) => {
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) return res.json(await sbStats(sb));
+
+      const totalSales = db.orders.reduce((sum, o: any) => sum + Number(o.total ?? 0), 0);
+      const lowStockCount = db.inventory.filter(i => i.stock <= i.minStock).length;
+      res.json({
+        totalSales,
+        orderCount: db.orders.length,
+        customerCount: db.customers.length,
+        lowStockCount,
+      });
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al calcular estadísticas' });
+    }
   });
 
   // Vite middleware
@@ -156,6 +262,11 @@ async function startServer() {
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${PORT}`);
+    if (getSupabaseAdmin()) {
+      console.log('Supabase: activo (SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)');
+    } else {
+      console.log('Supabase: no configurado — usando base en memoria');
+    }
   });
 }
 

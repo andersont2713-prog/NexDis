@@ -745,9 +745,7 @@ function SellerHome() {
 
         {/* Tarjetas: se deslizan sobre la capa */}
         <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
-          <div
-            className="flex-1 overflow-y-auto route-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
-          >
+          <DragScrollList>
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
                 {visits.map((visit) => (
@@ -760,9 +758,62 @@ function SellerHome() {
                 ))}
               </AnimatePresence>
             </Reorder.Group>
-          </div>
+          </DragScrollList>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Contenedor con scroll vertical que además permite arrastrar con el dedo/mouse. */
+function DragScrollList({ children }: { children: React.ReactNode }) {
+  const ref = React.useRef<HTMLDivElement | null>(null);
+  const state = React.useRef({
+    dragging: false,
+    startY: 0,
+    startScroll: 0,
+    pointerId: 0 as number | null,
+    moved: false,
+  });
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    // Solo para mouse/pen: el touch ya hace scroll nativo con pan-y
+    if (e.pointerType === 'touch') return;
+    const el = ref.current;
+    if (!el) return;
+    state.current.dragging = true;
+    state.current.startY = e.clientY;
+    state.current.startScroll = el.scrollTop;
+    state.current.pointerId = e.pointerId;
+    state.current.moved = false;
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!state.current.dragging) return;
+    const el = ref.current;
+    if (!el) return;
+    const dy = e.clientY - state.current.startY;
+    if (Math.abs(dy) > 3) state.current.moved = true;
+    el.scrollTop = state.current.startScroll - dy;
+  };
+
+  const endDrag = () => {
+    state.current.dragging = false;
+    state.current.pointerId = null;
+  };
+
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onPointerLeave={endDrag}
+      className="flex-1 overflow-y-auto route-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
+      style={{ touchAction: 'pan-y', cursor: state.current.dragging ? 'grabbing' : 'grab' }}
+    >
+      {children}
     </div>
   );
 }

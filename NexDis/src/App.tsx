@@ -647,7 +647,7 @@ function SellerHome() {
 
         {/* Nueva cabecera principal: Ruta de Hoy */}
         <div
-          className="shrink-0 relative z-10 rounded-3xl border backdrop-blur-2xl overflow-hidden"
+          className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
           style={{
             borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
             background: 'color-mix(in srgb, var(--app-bg) 86%, transparent)',
@@ -734,7 +734,7 @@ function SellerHome() {
         </div>
 
         {/* Tarjetas: se deslizan sobre la capa */}
-        <div className="flex-1 min-h-0 relative z-10 mt-4">
+        <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4">
           <div className="h-full overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>

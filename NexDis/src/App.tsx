@@ -659,9 +659,11 @@ function SellerHome() {
         <div
           className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
           style={{
-            borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-            background: 'color-mix(in srgb, var(--app-bg) 86%, transparent)',
-            boxShadow: '0 30px 80px -55px rgba(0,0,0,0.75)',
+            borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
+            background:
+              'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 22%, var(--app-bg)) 100%)',
+            boxShadow:
+              '0 30px 80px -45px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
           }}
         >
           <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />

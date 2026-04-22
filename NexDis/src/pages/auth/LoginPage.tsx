@@ -33,7 +33,7 @@ export default function LoginPage() {
     setTimeout(() => {
       setIsLoading(false);
       toast.success('Bienvenido a NexDist');
-      navigate('/roles');
+      navigate('/seller');
     }, 1500);
   };
 

@@ -345,20 +345,21 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
+  const headerHeight = 76; // base header height (without safe-area)
+
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
       style={{
         backgroundColor: 'var(--app-bg)',
         color: 'var(--app-fg)',
         borderColor: 'var(--app-border)',
-        paddingTop: 'env(safe-area-inset-top)',
         paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
       }}
     >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
       
       <header
-        className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b sticky top-0 z-50"
+        className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"
         style={{
           background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)',
           borderColor: 'var(--app-border)',
@@ -402,6 +403,14 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
           </button>
         </div>
       </header>
+
+      {/* Spacer for fixed header (safe-area + header) */}
+      <div
+        style={{
+          height: `calc(env(safe-area-inset-top) + ${headerHeight}px)`,
+          flexShrink: 0,
+        }}
+      />
 
       {/* Sidebar Overlay */}
       <AnimatePresence>
@@ -472,7 +481,7 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-hidden relative z-10 flex flex-col">
+      <div className="flex-1 overflow-y-auto relative z-10 flex flex-col">
         {children}
       </div>
 
@@ -854,7 +863,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/roles" element={<RoleSelector />} />
+        <Route path="/roles" element={<Navigate to="/seller" replace />} />
         
         {/* Admin Routes */}
         <Route path="/admin/*" element={

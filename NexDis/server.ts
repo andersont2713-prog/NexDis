@@ -68,8 +68,26 @@ async function startServer() {
   // Mock Database State
   let db = {
     inventory: [
-      { id: '1', name: 'Arroz Premium 1kg', sku: 'ARZ-001', stock: 1200, minStock: 200, maxStock: 5000, warehouse: 'Principal', lot: 'L2024-001', expiry: '2025-12-31', imageUrl: null },
-      { id: '2', name: 'Aceite Girasol 900ml', sku: 'ACE-900', stock: 850, minStock: 100, maxStock: 2000, warehouse: 'Norte', lot: 'L2024-052', expiry: '2025-06-15', imageUrl: null },
+      { id: '1', name: 'Arroz Premium 1kg', sku: 'ARZ-001', stock: 1200, minStock: 200, maxStock: 5000, warehouse: 'Principal', lot: 'L2024-001', expiry: '2025-12-31', price: 4.50, category: 'Abarrotes', imageUrl: null },
+      { id: '2', name: 'Aceite Girasol 900ml', sku: 'ACE-900', stock: 850, minStock: 100, maxStock: 2000, warehouse: 'Norte', lot: 'L2024-052', expiry: '2025-06-15', price: 8.90, category: 'Abarrotes', imageUrl: null },
+      { id: '3', name: 'Azúcar Rubia 1kg', sku: 'AZU-001', stock: 600, minStock: 150, maxStock: 3000, warehouse: 'Principal', lot: 'L2024-014', expiry: '2026-02-28', price: 4.20, category: 'Abarrotes', imageUrl: null },
+      { id: '4', name: 'Harina de Trigo 1kg', sku: 'HAR-001', stock: 420, minStock: 100, maxStock: 2500, warehouse: 'Principal', lot: 'L2024-021', expiry: '2025-10-10', price: 3.80, category: 'Abarrotes', imageUrl: null },
+      { id: '5', name: 'Fideos Spaghetti 500g', sku: 'FID-500', stock: 350, minStock: 80, maxStock: 2000, warehouse: 'Principal', lot: 'L2024-033', expiry: '2026-01-20', price: 2.80, category: 'Abarrotes', imageUrl: null },
+      { id: '6', name: 'Atún en lata 170g', sku: 'ATN-170', stock: 220, minStock: 60, maxStock: 1200, warehouse: 'Principal', lot: 'L2024-044', expiry: '2026-08-15', price: 5.60, category: 'Abarrotes', imageUrl: null },
+      { id: '7', name: 'Leche Entera 1L', sku: 'LEC-001', stock: 300, minStock: 80, maxStock: 1800, warehouse: 'Norte', lot: 'L2024-055', expiry: '2025-05-30', price: 4.20, category: 'Lácteos', imageUrl: null },
+      { id: '8', name: 'Yogurt Fresa 1L', sku: 'YOG-FRE', stock: 180, minStock: 50, maxStock: 900, warehouse: 'Norte', lot: 'L2024-061', expiry: '2025-04-22', price: 6.90, category: 'Lácteos', imageUrl: null },
+      { id: '9', name: 'Queso Fresco 500g', sku: 'QUE-500', stock: 95, minStock: 40, maxStock: 600, warehouse: 'Norte', lot: 'L2024-066', expiry: '2025-03-10', price: 9.50, category: 'Lácteos', imageUrl: null },
+      { id: '10', name: 'Mantequilla 200g', sku: 'MAN-200', stock: 140, minStock: 40, maxStock: 700, warehouse: 'Norte', lot: 'L2024-069', expiry: '2025-07-01', price: 7.40, category: 'Lácteos', imageUrl: null },
+      { id: '11', name: 'Gaseosa Cola 3L', sku: 'GAS-CO3', stock: 260, minStock: 80, maxStock: 1500, warehouse: 'Sur', lot: 'L2024-071', expiry: '2025-11-05', price: 9.90, category: 'Bebidas', imageUrl: null },
+      { id: '12', name: 'Agua Mineral 625ml', sku: 'AGU-625', stock: 540, minStock: 120, maxStock: 3000, warehouse: 'Sur', lot: 'L2024-073', expiry: '2026-09-18', price: 1.50, category: 'Bebidas', imageUrl: null },
+      { id: '13', name: 'Jugo Naranja 1L', sku: 'JUG-NAR', stock: 160, minStock: 40, maxStock: 900, warehouse: 'Sur', lot: 'L2024-075', expiry: '2025-08-12', price: 4.90, category: 'Bebidas', imageUrl: null },
+      { id: '14', name: 'Cerveza Lata 355ml', sku: 'CER-355', stock: 480, minStock: 100, maxStock: 2000, warehouse: 'Sur', lot: 'L2024-077', expiry: '2025-12-01', price: 4.50, category: 'Bebidas', imageUrl: null },
+      { id: '15', name: 'Café Molido 250g', sku: 'CAF-250', stock: 110, minStock: 30, maxStock: 600, warehouse: 'Principal', lot: 'L2024-080', expiry: '2026-03-25', price: 12.50, category: 'Abarrotes', imageUrl: null },
+      { id: '16', name: 'Galletas Surtidas 300g', sku: 'GAL-300', stock: 230, minStock: 50, maxStock: 1200, warehouse: 'Principal', lot: 'L2024-082', expiry: '2025-09-19', price: 5.20, category: 'Abarrotes', imageUrl: null },
+      { id: '17', name: 'Detergente Líquido 1L', sku: 'DET-1L', stock: 190, minStock: 50, maxStock: 1100, warehouse: 'Principal', lot: 'L2024-084', expiry: '2027-01-14', price: 8.80, category: 'Limpieza', imageUrl: null },
+      { id: '18', name: 'Jabón de Tocador x3', sku: 'JAB-X3', stock: 320, minStock: 80, maxStock: 1800, warehouse: 'Principal', lot: 'L2024-086', expiry: '2027-06-06', price: 4.60, category: 'Limpieza', imageUrl: null },
+      { id: '19', name: 'Lejía 1L', sku: 'LEJ-1L', stock: 210, minStock: 60, maxStock: 1200, warehouse: 'Principal', lot: 'L2024-088', expiry: '2026-10-30', price: 3.50, category: 'Limpieza', imageUrl: null },
+      { id: '20', name: 'Papel higiénico pack x4', sku: 'PAP-X4', stock: 400, minStock: 80, maxStock: 2200, warehouse: 'Principal', lot: 'L2024-090', expiry: '2030-01-01', price: 6.20, category: 'Limpieza', imageUrl: null },
     ],
     categories: ['General', 'Abarrotes', 'Bebidas', 'Lácteos', 'Limpieza'],
     customers: [

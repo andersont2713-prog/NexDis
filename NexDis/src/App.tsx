@@ -243,13 +243,6 @@ function NavLink({ to, icon, label, isCollapsed }: { to: string, icon: React.Rea
 function Dashboard() {
   const { formatPrice } = useRegional();
 
-  const today = new Date().toLocaleDateString('es-ES', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  });
-
   const RECENT_ORDERS = [
     { id: 'ORD-2041', customer: 'Bodega El Sol', total: 1240, status: 'delivered', seller: 'Anderson' },
     { id: 'ORD-2040', customer: 'Minimarket Lily', total: 820, status: 'shipped', seller: 'Anderson' },
@@ -268,61 +261,9 @@ function Dashboard() {
     <div className="flex-1 flex flex-col overflow-hidden relative">
       <div className="flex-1 overflow-y-auto custom-scrollbar">
         <div className="p-6 pt-4 space-y-5">
-          {/* Hero header */}
-          <div
-            className="relative rounded-3xl border overflow-hidden"
-            style={{
-              borderColor: 'color-mix(in srgb, rgb(99 102 241) 40%, transparent)',
-              background:
-                'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 20%, var(--app-bg)) 100%)',
-              boxShadow:
-                '0 40px 80px -50px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
-            }}
-          >
-            <div className="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
-            <div className="absolute -right-16 -bottom-16 w-60 h-60 rounded-full blur-[70px] opacity-20 bg-emerald-500" />
-
-            <div className="relative p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-300/80">
-                  Backoffice · {today}
-                </p>
-                <h2 className="text-3xl font-black italic tracking-tight text-white uppercase leading-none mt-1">
-                  Panel General
-                </h2>
-                <p className="text-slate-300/80 text-[11px] font-bold uppercase tracking-widest mt-2">
-                  Buen día, Administrador — tu operación se ve saludable hoy.
-                </p>
-              </div>
-
-              <div className="hidden md:flex items-center gap-3 shrink-0">
-                <Link
-                  to="/admin/orders"
-                  className="px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-2"
-                  style={{
-                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-                    background: 'color-mix(in srgb, rgb(99 102 241 / 0.25) 70%, transparent)',
-                    color: 'var(--app-fg)',
-                  }}
-                >
-                  <ShoppingCart size={14} className="text-indigo-300" />
-                  Ver Pedidos
-                </Link>
-                <Link
-                  to="/admin/pos"
-                  className="px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-2"
-                  style={{
-                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-                    background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
-                    color: 'var(--app-fg)',
-                  }}
-                >
-                  <Zap size={14} className="text-emerald-300" />
-                  Punto de Venta
-                </Link>
-              </div>
-            </div>
-          </div>
+          <h2 className="text-2xl font-black italic tracking-tight text-white uppercase leading-none">
+            Panel General
+          </h2>
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">

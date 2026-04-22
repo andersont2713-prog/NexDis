@@ -353,7 +353,6 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
         backgroundColor: 'var(--app-bg)',
         color: 'var(--app-fg)',
         borderColor: 'var(--app-border)',
-        paddingBottom: 'calc(env(safe-area-inset-bottom) + 88px)',
       }}
     >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
@@ -748,9 +747,6 @@ function SellerHome() {
         <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
           <div
             className="flex-1 overflow-y-auto custom-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
-            style={{
-              paddingBottom: 'calc(env(safe-area-inset-bottom) + 104px)',
-            }}
           >
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>

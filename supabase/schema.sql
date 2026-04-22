@@ -73,3 +73,4 @@ values
 on conflict (id) do nothing;
 
 -- Más adelante: habilita RLS y define políticas en el dashboard (especialmente si usas VITE_SUPABASE_ANON_KEY en el cliente).
+

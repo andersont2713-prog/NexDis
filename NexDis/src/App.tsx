@@ -746,7 +746,7 @@ function SellerHome() {
 
         {/* Tarjetas: se deslizan sobre la capa */}
         <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4">
-          <div className="h-full overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
+          <div className="h-full overflow-y-auto custom-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
                 {visits.map((visit) => (

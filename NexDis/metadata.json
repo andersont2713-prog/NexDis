@@ -1,0 +1,9 @@
+{
+  "name": "NexDist ERP",
+  "description": "Integrated distribution management system with inventory control, CRM, field sales app, and real-time logistics.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}

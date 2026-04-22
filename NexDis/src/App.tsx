@@ -645,7 +645,7 @@ function SellerHome() {
 
   return (
     <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
-      <div className="flex-1 overflow-hidden px-6 py-6 pb-32 flex flex-col min-h-0 relative">
+      <div className="flex-1 overflow-hidden px-6 py-6 pb-0 flex flex-col min-h-0 relative">
         {/* Capa base estática SOLO bajo cabeceras (no cubre el sticky/KPI) */}
         <div
           className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"

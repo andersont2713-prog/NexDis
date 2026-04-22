@@ -52,37 +52,32 @@ export default function CatalogPage() {
           <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
           <div className="absolute -right-12 -bottom-12 w-44 h-44 rounded-full blur-[60px] opacity-20 bg-emerald-500" />
 
-          <div className="p-4 relative">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex items-start gap-3">
+          <div className="px-4 py-2.5 relative">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0 flex items-center gap-2">
                 <button
                   onClick={() => navigate('/seller')}
-                  className="p-2 rounded-xl border text-slate-300 hover:text-white transition-all active:scale-95"
+                  className="p-1.5 rounded-lg border text-slate-300 hover:text-white transition-all active:scale-95"
                   style={{
                     borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
                     background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
                   }}
                   title="Volver"
                 >
-                  <ArrowLeft size={18} />
+                  <ArrowLeft size={16} />
                 </button>
-                <div className="min-w-0">
-                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
-                    Field • Venta rápida
-                  </p>
-                  <h2 className="text-xl font-black italic tracking-tight text-white uppercase leading-none mt-0.5">
-                    Catálogo Express
-                  </h2>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
-                    {filtered.length} producto{filtered.length === 1 ? '' : 's'}
-                  </p>
-                </div>
+                <h2 className="text-base font-black italic tracking-tight text-white uppercase leading-none">
+                  Catálogo Express
+                </h2>
+                <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300/70">
+                  {filtered.length}
+                </span>
               </div>
 
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
-                  className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                  className="px-2.5 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-95"
                   style={{
                     borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
                     background: 'color-mix(in srgb, var(--app-card) 40%, transparent)',
@@ -90,40 +85,23 @@ export default function CatalogPage() {
                   }}
                   title="Filtros"
                 >
-                  <span className="inline-flex items-center gap-2">
-                    <Filter size={16} className="text-emerald-400" />
+                  <span className="inline-flex items-center gap-1.5">
+                    <Filter size={14} className="text-emerald-400" />
                     Filtros
                   </span>
                 </button>
               </div>
             </div>
 
-            <div className="mt-3 flex items-center gap-3">
-              <div
-                className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic"
-                style={{
-                  borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-                  background: 'color-mix(in srgb, rgb(99 102 241 / 0.18) 60%, transparent)',
-                  color: 'var(--app-fg)',
-                }}
-                title="Catálogo"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Package size={16} className="text-indigo-400" />
-                  Catálogo
-                </span>
-              </div>
-
-              <div className="flex-1 min-w-0 relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                <input
-                  type="text"
-                  placeholder="Buscar nombre o SKU…"
-                  className="input-glass pl-10 !py-2"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+            <div className="mt-2 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+              <input
+                type="text"
+                placeholder="Buscar nombre o SKU…"
+                className="input-glass pl-9 !py-1.5 text-sm"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
           </div>
         </div>

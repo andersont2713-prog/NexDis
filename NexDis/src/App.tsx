@@ -357,6 +357,17 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
       }}
     >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
+
+      {/* Capa global estática (debajo del header y del bottom nav) */}
+      <div
+        className="absolute left-0 right-0 pointer-events-none z-[5]"
+        style={{
+          top: `calc(env(safe-area-inset-top) + ${headerHeight}px)`,
+          bottom: 'calc(env(safe-area-inset-bottom) + 88px)',
+          background:
+            'linear-gradient(180deg, color-mix(in srgb, var(--app-card) 55%, transparent) 0%, color-mix(in srgb, var(--app-card) 35%, transparent) 100%)',
+        }}
+      />
       
       <header
         className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"

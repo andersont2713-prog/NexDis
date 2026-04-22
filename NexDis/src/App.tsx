@@ -810,7 +810,7 @@ function DragScrollList({ children }: { children: React.ReactNode }) {
       onPointerUp={endDrag}
       onPointerCancel={endDrag}
       onPointerLeave={endDrag}
-      className="flex-1 overflow-y-auto route-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
+      className="flex-1 overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
       style={{ touchAction: 'pan-y', cursor: state.current.dragging ? 'grabbing' : 'grab' }}
     >
       {children}

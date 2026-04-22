@@ -278,11 +278,19 @@ function Dashboard() {
           
           <div className="frosted-card h-[520px] flex flex-col min-h-0">
             <h3 className="text-lg font-bold mb-6 text-white uppercase italic tracking-tight">Alertas de Stock</h3>
-            <div className="space-y-4 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-4 flex-1 min-h-0 max-h-[420px] overflow-y-auto pr-1 custom-scrollbar">
               <StockAlertItem name="Aceite Girasol" stock={5} unit="und" status="Critico" />
               <StockAlertItem name="Arroz Premium" stock={140} unit="kg" status="Alerta" />
               <StockAlertItem name="Leche Entera" stock={2} unit="und" status="Critico" />
               <StockAlertItem name="Harina Trigo" stock={85} unit="kg" status="Alerta" />
+              <StockAlertItem name="Azúcar Rubia 1kg" stock={18} unit="und" status="Alerta" />
+              <StockAlertItem name="Fideos Spaghetti 500g" stock={6} unit="und" status="Critico" />
+              <StockAlertItem name="Atún en lata 170g" stock={22} unit="und" status="Alerta" />
+              <StockAlertItem name="Papel higiénico pack x4" stock={3} unit="pack" status="Critico" />
+              <StockAlertItem name="Detergente 1L" stock={14} unit="und" status="Alerta" />
+              <StockAlertItem name="Gaseosa 3L" stock={4} unit="und" status="Critico" />
+              <StockAlertItem name="Café 200g" stock={25} unit="und" status="Alerta" />
+              <StockAlertItem name="Galletas surtidas" stock={7} unit="und" status="Critico" />
             </div>
           </div>
         </div>

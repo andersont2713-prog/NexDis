@@ -624,36 +624,6 @@ function SellerHome() {
 
   return (
     <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
-      <div
-        className="shrink-0 z-40 backdrop-blur-xl px-6 pt-6 pb-4 border-b shadow-2xl relative sticky top-0"
-        style={{
-          background: 'color-mix(in srgb, var(--app-bg) 92%, transparent)',
-          borderColor: 'var(--app-border)',
-          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.55)',
-        }}
-      >
-        <div className="frosted-card bg-indigo-600/10 border-indigo-500/20 shadow-indigo-500/5 relative overflow-hidden p-4 rounded-2xl flex items-center justify-between">
-          <div className="relative z-10">
-            <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mb-0.5 italic">Rendimiento</p>
-            <div className="flex items-end gap-1.5">
-              <h2 className="text-2xl font-black text-white font-mono tracking-tighter">$4,250</h2>
-              <span className="text-emerald-400 text-[10px] font-bold mb-1 italic">+15%</span>
-            </div>
-          </div>
-          <div className="flex gap-2 relative z-10">
-            <div className="bg-white/5 border border-white/5 rounded-xl p-2 px-3 backdrop-blur-md text-center">
-              <p className="text-[8px] text-slate-500 font-bold uppercase tracking-tighter">Visitas</p>
-              <p className="text-sm font-black text-white font-mono leading-none mt-1">12/15</p>
-            </div>
-            <div className="bg-white/5 border border-white/5 rounded-xl p-2 px-3 backdrop-blur-md text-center">
-              <p className="text-[8px] text-slate-500 font-bold uppercase tracking-tighter">Tickets</p>
-              <p className="text-sm font-black text-white font-mono leading-none mt-1">08</p>
-            </div>
-          </div>
-          <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-500 rounded-full blur-[60px] opacity-20"></div>
-        </div>
-      </div>
-
       <div className="flex-1 overflow-hidden px-6 py-6 pb-32 flex flex-col min-h-0 relative">
         {/* Capa base estática SOLO bajo cabeceras (no cubre el sticky/KPI) */}
         <div
@@ -663,43 +633,13 @@ function SellerHome() {
               'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
           }}
         />
-
-        <div className="flex items-center justify-between mb-5 shrink-0">
-          <h3 className="text-xl font-black italic text-white uppercase flex items-center gap-2 tracking-tight">Ruta de Hoy</h3>
-          <button className="text-indigo-400 text-xs font-bold uppercase tracking-widest border border-indigo-400/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-indigo-400/5">
-            <MapIcon size={14} />
-            Ruta Mapa
-          </button>
-        </div>
-
-        {/* Solo las tarjetas hacen scroll (se deslizan sobre la capa base) */}
-        <div className="flex-1 min-h-0 relative z-10">
-          {/* Fondo “grueso” estático detrás de las tarjetas */}
-          <div
-            className="absolute inset-0 rounded-3xl border pointer-events-none z-0"
-            style={{
-              background:
-                'linear-gradient(180deg, color-mix(in srgb, var(--app-card) 92%, transparent) 0%, color-mix(in srgb, var(--app-card) 80%, transparent) 100%)',
-              borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-              boxShadow: '0 30px 80px -40px rgba(0,0,0,0.85) inset, 0 20px 50px -30px rgba(0,0,0,0.55)',
-            }}
-          />
-
-          <div className="h-full overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
-            <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
-              <AnimatePresence>
-                {visits.map((visit) => (
-                  <VisitCardWrapper
-                    key={visit.id}
-                    visit={visit}
-                    onCheckIn={() => handleCheckIn(visit.id)}
-                    onSelect={() => handleSelect(visit.id)}
-                  />
-                ))}
-              </AnimatePresence>
-            </Reorder.Group>
-          </div>
-        </div>
+        {/* Pantalla limpia: sin cabecera interna ni tarjetas (inicio de reestructuración) */}
+        <div className="flex-1 min-h-0 relative z-10 rounded-3xl border"
+          style={{
+            borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+            background: 'color-mix(in srgb, var(--app-card) 35%, transparent)',
+          }}
+        />
       </div>
     </div>
   );

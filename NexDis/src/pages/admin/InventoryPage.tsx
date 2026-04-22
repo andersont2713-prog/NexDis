@@ -60,10 +60,10 @@ export default function InventoryPage() {
       <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scrollbar">
         {/* Stats Summary */}
         <div className="grid grid-cols-4 gap-6">
-          <InventoryStat title="Total SKUs" value={products.length.toString()} icon={<Package size={20} />} />
-          <InventoryStat title="Valor Total" value={formatPrice(2400000)} icon={<TrendingUp />} />
-          <InventoryStat title="Alertas" value="15" variant="warning" icon={<AlertCircle size={20} />} />
-          <InventoryStat title="Vencimientos" value="4" variant="danger" icon={<AlertCircle size={20} />} />
+          <InventoryKPI title="Total SKUs" value={products.length.toString()} icon={<Package size={18} />} accent="text-indigo-400" />
+          <InventoryKPI title="Valor Total" value={formatPrice(2400000)} icon={<TrendingUp size={18} />} accent="text-emerald-400" />
+          <InventoryKPI title="Alertas" value="15" icon={<AlertCircle size={18} />} accent="text-orange-400" />
+          <InventoryKPI title="Vencimientos" value="4" icon={<AlertCircle size={18} />} accent="text-rose-400" />
         </div>
 
         {/* Filter Bar */}
@@ -171,25 +171,25 @@ export default function InventoryPage() {
 );
 }
 
-function InventoryStat({ title, value, icon, variant }: { title: string, value: string, icon: React.ReactNode, variant?: 'warning' | 'danger' }) {
+function InventoryKPI({
+  title,
+  value,
+  icon,
+  accent,
+}: {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  accent: string;
+}) {
   return (
-    <div className={cn(
-      "frosted-card relative overflow-hidden group border-white/5",
-      variant === 'warning' ? "bg-orange-500/5" : 
-      variant === 'danger' ? "bg-rose-500/5" : "bg-white/5"
-    )}>
-      <div className="flex items-center gap-3 mb-4 relative z-10">
-        <div className={cn(
-          "w-10 h-10 rounded-xl flex items-center justify-center border",
-          variant === 'warning' ? "bg-orange-500/10 text-orange-400 border-orange-500/20" : 
-          variant === 'danger' ? "bg-rose-500/10 text-rose-400 border-rose-500/20" : "bg-indigo-500/10 text-indigo-400 border-indigo-500/20"
-        )}>
-          {icon}
-        </div>
-        <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic">{title}</p>
+    <div className="frosted-card !p-4 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform"></div>
+      <div className="flex items-center justify-between mb-3 relative z-10">
+        <div className={cn("p-1.5 bg-white/5 border border-white/10 rounded-lg", accent)}>{icon}</div>
       </div>
-      <p className="text-4xl font-black text-white font-mono tracking-tighter relative z-10">{value}</p>
-      <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-white/5 rounded-full opacity-50 group-hover:scale-125 transition-transform duration-500"></div>
+      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest relative z-10 italic">{title}</p>
+      <p className="text-2xl font-black mt-0.5 text-white font-mono relative z-10 tracking-tighter">{value}</p>
     </div>
   );
 }

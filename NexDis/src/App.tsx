@@ -665,14 +665,14 @@ function SellerHome() {
         {/* Solo las tarjetas hacen scroll (sobre una capa base) */}
         <div className="flex-1 min-h-0 relative">
           <div
-            className="absolute inset-0 rounded-3xl border"
+            className="absolute inset-0 rounded-3xl border pointer-events-none z-0"
             style={{
               borderColor: 'var(--app-border)',
               background:
                 'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 78%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
             }}
           />
-          <div className="relative z-10 h-full overflow-y-auto no-scrollbar min-h-0 px-1">
+          <div className="relative z-10 h-full overflow-y-auto no-scrollbar min-h-0 px-1 bg-transparent overscroll-contain">
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
                 {visits.map((visit) => (

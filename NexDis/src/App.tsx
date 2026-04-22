@@ -249,6 +249,16 @@ function Dashboard() {
     { id: 'ORD-2039', customer: 'Mercado Central #24', total: 2150, status: 'processed', seller: 'Karla' },
     { id: 'ORD-2038', customer: 'Tienda Don Jhon', total: 540, status: 'pending', seller: 'Luis' },
     { id: 'ORD-2037', customer: 'Distribuidora San Martín', total: 3280, status: 'delivered', seller: 'Karla' },
+    { id: 'ORD-2036', customer: 'Abarrotes La Esquina', total: 475, status: 'shipped', seller: 'Luis' },
+    { id: 'ORD-2035', customer: 'Kiosko Central', total: 1180, status: 'processed', seller: 'Anderson' },
+    { id: 'ORD-2034', customer: 'Market Express', total: 2640, status: 'delivered', seller: 'Karla' },
+    { id: 'ORD-2033', customer: 'Tienda El Progreso', total: 960, status: 'pending', seller: 'Luis' },
+    { id: 'ORD-2032', customer: 'Bodega Doña Rosa', total: 1420, status: 'shipped', seller: 'Anderson' },
+    { id: 'ORD-2031', customer: 'Minimarket Norte', total: 3110, status: 'delivered', seller: 'Karla' },
+    { id: 'ORD-2030', customer: 'Comercial Andes', total: 780, status: 'cancelled', seller: 'Luis' },
+    { id: 'ORD-2029', customer: 'Tienda La Familia', total: 2050, status: 'processed', seller: 'Anderson' },
+    { id: 'ORD-2028', customer: 'Bodega El Rápido', total: 635, status: 'pending', seller: 'Karla' },
+    { id: 'ORD-2027', customer: 'Market Sur', total: 4120, status: 'delivered', seller: 'Anderson' },
   ] as const;
 
   const TOP_SELLERS = [
@@ -382,7 +392,7 @@ function Dashboard() {
 
           {/* Recent orders + Top sellers */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-            <div className="lg:col-span-2 frosted-card">
+            <div className="lg:col-span-2 frosted-card h-[420px] flex flex-col min-h-0">
               <div className="flex items-center justify-between mb-4">
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
@@ -401,7 +411,7 @@ function Dashboard() {
                 </Link>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar space-y-2">
                 {RECENT_ORDERS.map((o) => (
                   <OrderRow
                     key={o.id}

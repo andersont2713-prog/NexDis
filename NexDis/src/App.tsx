@@ -624,15 +624,6 @@ function SellerHome() {
 
   return (
     <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
-      {/* Capa base estática: las tarjetas se deslizan sobre ella */}
-      <div
-        className="absolute inset-0 pointer-events-none z-0"
-        style={{
-          background:
-            'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
-        }}
-      />
-
       <div
         className="shrink-0 z-40 backdrop-blur-xl px-6 pt-6 pb-4 border-b shadow-2xl relative sticky top-0"
         style={{
@@ -663,7 +654,16 @@ function SellerHome() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden px-6 py-6 pb-32 flex flex-col min-h-0">
+      <div className="flex-1 overflow-hidden px-6 py-6 pb-32 flex flex-col min-h-0 relative">
+        {/* Capa base estática SOLO bajo cabeceras (no cubre el sticky/KPI) */}
+        <div
+          className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"
+          style={{
+            background:
+              'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
+          }}
+        />
+
         <div className="flex items-center justify-between mb-5 shrink-0">
           <h3 className="text-xl font-black italic text-white uppercase flex items-center gap-2 tracking-tight">Ruta de Hoy</h3>
           <button className="text-indigo-400 text-xs font-bold uppercase tracking-widest border border-indigo-400/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-indigo-400/5">

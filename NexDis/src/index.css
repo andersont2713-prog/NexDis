@@ -100,6 +100,15 @@
   background: color-mix(in srgb, var(--app-accent) 55%, transparent);
 }
 
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE/Edge legacy */
+  scrollbar-width: none; /* Firefox */
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 .premium-gradient-mask {
   mask-image: linear-gradient(to bottom, transparent, black 10%, black 90%, transparent);
 }

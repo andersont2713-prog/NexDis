@@ -611,6 +611,17 @@ function SellerHome() {
     { id: '2', name: "Minimarket Lily", address: "Calle Los Pinos 102", status: "pending" as const, time: "10:15 AM" },
     { id: '3', name: "Mercado Central #24", address: "Jr. Huallaga 455", status: "pending" as const, time: "11:30 AM" },
     { id: '4', name: "Tienda Don Jhon", address: "Prol. Gamarra 882", status: "pending" as const, time: "02:00 PM" },
+    { id: '5', name: "Distribuidora San Martín", address: "Av. Benavides 1200", status: "pending" as const, time: "03:10 PM" },
+    { id: '6', name: "Abarrotes La Esquina", address: "Jr. Lima 330", status: "pending" as const, time: "03:45 PM" },
+    { id: '7', name: "Kiosko Central", address: "Psje. Grau 88", status: "pending" as const, time: "04:20 PM" },
+    { id: '8', name: "Market Express", address: "Av. Arequipa 2150", status: "pending" as const, time: "04:55 PM" },
+    { id: '9', name: "Tienda El Progreso", address: "Calle Las Flores 701", status: "pending" as const, time: "05:20 PM" },
+    { id: '10', name: "Bodega Doña Rosa", address: "Av. Los Próceres 145", status: "pending" as const, time: "05:45 PM" },
+    { id: '11', name: "Minimarket Norte", address: "Av. Túpac Amaru 980", status: "pending" as const, time: "06:10 PM" },
+    { id: '12', name: "Comercial Andes", address: "Jr. Puno 410", status: "pending" as const, time: "06:35 PM" },
+    { id: '13', name: "Tienda La Familia", address: "Calle Unión 56", status: "pending" as const, time: "07:00 PM" },
+    { id: '14', name: "Bodega El Rápido", address: "Av. Colonial 775", status: "pending" as const, time: "07:25 PM" },
+    { id: '15', name: "Market Sur", address: "Av. Pachacútec 1620", status: "pending" as const, time: "07:50 PM" },
   ]);
 
   const handleSelect = (id: string) => {

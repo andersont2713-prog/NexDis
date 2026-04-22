@@ -11,6 +11,7 @@ import {
   RefreshCw,
   Image as ImageIcon,
   Navigation,
+  IdCard,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -30,6 +31,8 @@ export default function NewCustomerPage() {
   const [isLocating, setIsLocating] = useState(false);
 
   const [formData, setFormData] = useState({
+    docType: 'DNI',
+    docNumber: '',
     name: '',
     contact: '',
     phone: '',
@@ -77,8 +80,8 @@ export default function NewCustomerPage() {
 
   const handleSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
-    if (!formData.name || !formData.address || !formData.zoneId) {
-      toast.error('Complete los campos obligatorios, incluyendo la Zona');
+    if (!formData.docNumber || !formData.name || !formData.address || !formData.zoneId) {
+      toast.error('Complete los campos obligatorios (Documento, Nombre, Dirección y Zona)');
       return;
     }
 
@@ -176,6 +179,44 @@ export default function NewCustomerPage() {
               style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 120px)' }}
             >
               <div className="space-y-6">
+                {/* Documento */}
+                <div className="space-y-3">
+                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic border-l-2 border-cyan-500/30 pl-3">
+                    Documento de Identidad
+                  </h3>
+                  <div className="grid grid-cols-[110px_1fr] gap-3">
+                    <select
+                      className="input-glass"
+                      value={formData.docType}
+                      onChange={(e) => setFormData({ ...formData, docType: e.target.value })}
+                      title="Tipo de documento"
+                    >
+                      <option value="DNI" className="bg-slate-900">DNI</option>
+                      <option value="CED" className="bg-slate-900">Cédula</option>
+                      <option value="RUC" className="bg-slate-900">RUC</option>
+                      <option value="PAS" className="bg-slate-900">Pasaporte</option>
+                      <option value="NIT" className="bg-slate-900">NIT</option>
+                    </select>
+                    <div className="relative group">
+                      <IdCard
+                        className="absolute left-3 top-3.5 text-slate-500 group-focus-within:text-cyan-400 transition-colors"
+                        size={18}
+                      />
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        placeholder="Número de documento *"
+                        required
+                        className="input-glass pl-10"
+                        value={formData.docNumber}
+                        onChange={(e) =>
+                          setFormData({ ...formData, docNumber: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 {/* Identidad */}
                 <div className="space-y-3">
                   <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic border-l-2 border-indigo-500/30 pl-3">

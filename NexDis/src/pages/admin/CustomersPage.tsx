@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Users, Plus, Search, Filter, Mail, Phone, MapPin, CreditCard, ChevronRight, History } from 'lucide-react';
 import { useRegional } from '../../context/RegionalContext';
 import { cn } from '../../lib/utils';
+import { useRealtime } from '../../lib/realtime';
 import type { Customer } from '../../types';
 
 export default function CustomersPage() {
@@ -10,14 +11,23 @@ export default function CustomersPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = () =>
     fetch('/api/customers')
       .then(res => res.json())
       .then(data => {
         setCustomers(data);
         setLoading(false);
       });
+
+  useEffect(() => {
+    load();
   }, []);
+
+  useRealtime({
+    onEvent: (type) => {
+      if (type === 'customers:created') load();
+    }
+  });
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">

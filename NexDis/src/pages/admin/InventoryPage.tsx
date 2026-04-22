@@ -3,6 +3,7 @@ import { Package, Plus, Filter, Search, MoreHorizontal, AlertCircle, ArrowUpRigh
 import { toast } from 'sonner';
 import { useRegional } from '../../context/RegionalContext';
 import { cn } from '../../lib/utils';
+import { useRealtime } from '../../lib/realtime';
 import type { Product } from '../../types';
 
 export default function InventoryPage() {
@@ -10,14 +11,24 @@ export default function InventoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const load = () =>
     fetch('/api/inventory')
       .then(res => res.json())
       .then(data => {
         setProducts(data);
         setLoading(false);
       });
+
+  useEffect(() => {
+    load();
   }, []);
+
+  useRealtime({
+    onEvent: (type) => {
+      if (type === 'inventory:updated') load();
+      if (type === 'orders:created') load(); // orders can affect stock in future
+    }
+  });
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">

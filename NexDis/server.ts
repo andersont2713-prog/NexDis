@@ -13,6 +13,25 @@ async function startServer() {
 
   app.use(express.json());
 
+  // --- Realtime sync (SSE) ---
+  type RealtimeEvent =
+    | { type: 'customers:created'; payload: any }
+    | { type: 'orders:created'; payload: any }
+    | { type: 'inventory:updated'; payload: any };
+
+  const sseClients = new Set<express.Response>();
+
+  function broadcast(event: RealtimeEvent) {
+    const data = `event: ${event.type}\ndata: ${JSON.stringify(event.payload)}\n\n`;
+    for (const res of sseClients) {
+      try {
+        res.write(data);
+      } catch {
+        // ignore broken pipes; cleanup happens on close
+      }
+    }
+  }
+
   // Mock Database State
   let db = {
     inventory: [
@@ -28,18 +47,41 @@ async function startServer() {
   };
 
   // API Routes
+  app.get('/api/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+
+    res.flushHeaders?.();
+    res.write('event: ready\ndata: {}\n\n');
+
+    sseClients.add(res);
+
+    const keepAlive = setInterval(() => {
+      res.write('event: ping\ndata: {}\n\n');
+    }, 25_000);
+
+    req.on('close', () => {
+      clearInterval(keepAlive);
+      sseClients.delete(res);
+    });
+  });
+
   app.get('/api/inventory', (req, res) => res.json(db.inventory));
   app.get('/api/customers', (req, res) => res.json(db.customers));
   
   app.post('/api/customers', (req, res) => {
     const customer = { ...req.body, id: `CUST-00${db.customers.length + 1}`, currentBalance: 0 };
     db.customers.push(customer);
+    broadcast({ type: 'customers:created', payload: customer });
     res.status(201).json(customer);
   });
   
   app.post('/api/orders', (req, res) => {
     const order = { ...req.body, id: Date.now().toString(), status: 'pending', createdAt: new Date() };
     db.orders.push(order);
+    broadcast({ type: 'orders:created', payload: order });
     res.json(order);
   });
 

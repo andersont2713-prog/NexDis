@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Package, Plus, Filter, Search, MoreHorizontal, AlertCircle, ArrowUpRight, ArrowDownRight, Warehouse, TrendingUp } from 'lucide-react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Package, Plus, Filter, Search, MoreHorizontal, AlertCircle, ArrowUpRight, ArrowDownRight, Warehouse, TrendingUp, Image as ImageIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRegional } from '../../context/RegionalContext';
 import { cn } from '../../lib/utils';
@@ -110,8 +110,49 @@ export default function InventoryPage() {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [photoTarget, setPhotoTarget] = useState<Product | null>(null);
+
+  const openPhotoPicker = (product: Product) => {
+    setPhotoTarget(product);
+    fileInputRef.current?.click();
+  };
+
+  const handlePhotoPicked = async (file: File | null) => {
+    const product = photoTarget;
+    setPhotoTarget(null);
+    if (!product || !file) return;
+
+    const id = toast.loading('Subiendo foto...');
+    try {
+      const fd = new FormData();
+      fd.append('photo', file);
+      const res = await fetch(`/api/inventory/${encodeURIComponent(product.id)}/photo`, {
+        method: 'POST',
+        body: fd,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'No se pudo subir la foto');
+      }
+      toast.success('Foto actualizada', { id });
+      loadInventory();
+    } catch (e: any) {
+      toast.error(e?.message || 'Error al subir foto', { id });
+    } finally {
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={(e) => handlePhotoPicked(e.target.files?.[0] ?? null)}
+      />
       <div className="shrink-0 flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-1 font-display">Inventario Maestro</h2>
@@ -376,7 +417,12 @@ export default function InventoryPage() {
                 <td className="px-6 py-5">
                   <div className="flex items-center gap-4">
                     <div className="w-12 h-12 bg-slate-800 border border-white/5 rounded-xl flex items-center justify-center overflow-hidden ring-1 ring-white/5 group-hover:scale-110 transition-transform">
-                       <img src={`https://picsum.photos/seed/${product.sku}/100/100`} alt="prod" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                       <img
+                         src={product.imageUrl || `https://picsum.photos/seed/${product.sku}/100/100`}
+                         alt="prod"
+                         className="w-full h-full object-cover"
+                         referrerPolicy="no-referrer"
+                       />
                     </div>
                     <div>
                       <p className="font-bold text-white tracking-tight">{product.name}</p>
@@ -422,9 +468,18 @@ export default function InventoryPage() {
                   </span>
                 </td>
                 <td className="px-6 py-5 text-right">
-                  <button className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
-                    <MoreHorizontal size={18} />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all"
+                      title="Subir foto"
+                      onClick={() => openPhotoPicker(product)}
+                    >
+                      <ImageIcon size={18} />
+                    </button>
+                    <button className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-xl transition-all">
+                      <MoreHorizontal size={18} />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

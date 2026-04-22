@@ -3,12 +3,15 @@ import express from 'express';
 import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
+import multer from 'multer';
 import { getSupabaseAdmin } from './server/supabaseAdmin.ts';
 import {
   sbListCategories,
   sbInsertCategory,
   sbListProducts,
   sbInsertProduct,
+  sbUpdateProductImageUrl,
   sbListCustomers,
   sbInsertCustomer,
   sbInsertOrder,
@@ -26,6 +29,21 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  const uploadsDir = path.join(__dirname, 'uploads');
+  if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, {recursive: true});
+  app.use('/uploads', express.static(uploadsDir));
+
+  const upload = multer({
+    storage: multer.diskStorage({
+      destination: (_req, _file, cb) => cb(null, uploadsDir),
+      filename: (_req, file, cb) => {
+        const safe = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, `${Date.now()}_${safe}`);
+      },
+    }),
+    limits: {fileSize: 5 * 1024 * 1024},
+  });
 
   // --- Realtime sync (SSE) ---
   type RealtimeEvent =
@@ -50,8 +68,8 @@ async function startServer() {
   // Mock Database State
   let db = {
     inventory: [
-      { id: '1', name: 'Arroz Premium 1kg', sku: 'ARZ-001', stock: 1200, minStock: 200, maxStock: 5000, warehouse: 'Principal', lot: 'L2024-001', expiry: '2025-12-31' },
-      { id: '2', name: 'Aceite Girasol 900ml', sku: 'ACE-900', stock: 850, minStock: 100, maxStock: 2000, warehouse: 'Norte', lot: 'L2024-052', expiry: '2025-06-15' },
+      { id: '1', name: 'Arroz Premium 1kg', sku: 'ARZ-001', stock: 1200, minStock: 200, maxStock: 5000, warehouse: 'Principal', lot: 'L2024-001', expiry: '2025-12-31', imageUrl: null },
+      { id: '2', name: 'Aceite Girasol 900ml', sku: 'ACE-900', stock: 850, minStock: 100, maxStock: 2000, warehouse: 'Norte', lot: 'L2024-052', expiry: '2025-06-15', imageUrl: null },
     ],
     categories: ['General', 'Abarrotes', 'Bebidas', 'Lácteos', 'Limpieza'],
     customers: [
@@ -152,6 +170,7 @@ async function startServer() {
       expiry: body.expiry ?? '2099-12-31',
       price: Number(body.price ?? 0),
       category: body.category ?? 'General',
+      imageUrl: body.imageUrl ?? null,
     };
 
     try {
@@ -172,6 +191,32 @@ async function startServer() {
       }
       console.error(e);
       res.status(500).json({ error: e?.message ?? 'Error al crear producto' });
+    }
+  });
+
+  app.post('/api/inventory/:id/photo', upload.single('photo'), async (req, res) => {
+    const id = String(req.params.id);
+    const file = (req as any).file as { filename: string } | undefined;
+    if (!file) return res.status(400).json({error: 'photo file is required'});
+
+    const publicUrl = `/uploads/${file.filename}`;
+
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        const saved = await sbUpdateProductImageUrl(sb, id, publicUrl);
+        broadcast({ type: 'inventory:updated', payload: saved });
+        return res.json(saved);
+      }
+
+      const idx = db.inventory.findIndex((p: any) => String(p.id) === id);
+      if (idx === -1) return res.status(404).json({error: 'product not found'});
+      db.inventory[idx] = {...db.inventory[idx], imageUrl: publicUrl};
+      broadcast({ type: 'inventory:updated', payload: db.inventory[idx] });
+      return res.json(db.inventory[idx]);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({error: e?.message ?? 'Error al subir foto'});
     }
   });
 

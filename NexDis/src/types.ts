@@ -15,6 +15,7 @@ export interface Product {
   expiry: string;
   price: number;
   category: string;
+  imageUrl?: string;
 }
 
 export interface Customer {

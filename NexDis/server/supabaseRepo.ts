@@ -13,6 +13,7 @@ type ProductRow = {
   expiry: string;
   price: number;
   category: string;
+  image_url?: string | null;
 };
 
 function mapProduct(row: ProductRow) {
@@ -28,6 +29,7 @@ function mapProduct(row: ProductRow) {
     expiry: row.expiry,
     price: Number(row.price),
     category: row.category,
+    imageUrl: row.image_url ?? undefined,
   };
 }
 
@@ -60,6 +62,7 @@ export async function sbInsertProduct(sb: SupabaseClient, input: {
   expiry: string;
   price: number;
   category: string;
+  imageUrl?: string;
 }) {
   const row = {
     id: input.id,
@@ -73,8 +76,15 @@ export async function sbInsertProduct(sb: SupabaseClient, input: {
     expiry: input.expiry,
     price: input.price,
     category: input.category,
+    image_url: input.imageUrl ?? null,
   };
   const {data, error} = await sb.from('products').insert(row).select('*').single();
+  if (error) throw error;
+  return mapProduct(data as ProductRow);
+}
+
+export async function sbUpdateProductImageUrl(sb: SupabaseClient, id: string, imageUrl: string) {
+  const {data, error} = await sb.from('products').update({image_url: imageUrl}).eq('id', id).select('*').single();
   if (error) throw error;
   return mapProduct(data as ProductRow);
 }

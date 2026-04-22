@@ -23,6 +23,7 @@ create table if not exists public.products (
   expiry text not null default '2099-12-31',
   price numeric not null default 0,
   category text not null default 'General',
+  image_url text,
   created_at timestamptz default now()
 );
 

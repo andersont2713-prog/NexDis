@@ -633,13 +633,8 @@ function SellerHome() {
               'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
           }}
         />
-        {/* Pantalla limpia: sin cabecera interna ni tarjetas (inicio de reestructuración) */}
-        <div className="flex-1 min-h-0 relative z-10 rounded-3xl border"
-          style={{
-            borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-            background: 'color-mix(in srgb, var(--app-card) 35%, transparent)',
-          }}
-        />
+        {/* Pantalla limpia: sin cabecera interna ni tarjetas */}
+        <div className="flex-1 min-h-0 relative z-10" />
       </div>
     </div>
   );

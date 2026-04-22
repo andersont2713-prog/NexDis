@@ -41,19 +41,19 @@ export default function MyCustomersPage() {
       className="flex-1 flex flex-col h-full relative overflow-hidden"
       style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}
     >
-      <div className="flex-1 overflow-hidden px-6 py-6 pb-0 flex flex-col min-h-0 relative">
+      <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
         {/* Capa base estática */}
         <div
-          className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"
+          className="absolute inset-0 pointer-events-none z-0"
           style={{
             background:
               'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
           }}
         />
 
-        {/* Cabecera principal (mismo estilo que Ruta de Hoy) */}
+        {/* Cabecera principal (ancho completo) */}
         <div
-          className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
+          className="shrink-0 relative z-20 border-b backdrop-blur-2xl overflow-hidden sticky top-0"
           style={{
             borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
             background:
@@ -141,8 +141,8 @@ export default function MyCustomersPage() {
           </div>
         </div>
 
-        {/* Listado de clientes: mismo patrón que Ruta de Hoy */}
-        <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
+        {/* Listado de clientes */}
+        <div className="flex-1 min-h-0 relative z-10 pt-4 px-6 flex flex-col overflow-hidden">
           <DragScrollList>
             <div className="space-y-4">
               {filtered.map((c) => (

@@ -134,19 +134,19 @@ export default function NewOrderPage() {
       {/* Step 1: Seleccionar Cliente (misma modalidad que Ruta de Hoy) */}
       {step === 1 && (
         <div className="flex-1 flex flex-col min-h-0 relative z-10 overflow-hidden">
-          <div className="flex-1 overflow-hidden px-6 py-6 pb-0 flex flex-col min-h-0 relative">
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
             {/* Capa base estática */}
             <div
-              className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"
+              className="absolute inset-0 pointer-events-none z-0"
               style={{
                 background:
                   'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
               }}
             />
 
-            {/* Cabecera principal */}
+            {/* Cabecera principal (ancho completo) */}
             <div
-              className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
+              className="shrink-0 relative z-20 border-b backdrop-blur-2xl overflow-hidden sticky top-0"
               style={{
                 borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
                 background:
@@ -225,7 +225,7 @@ export default function NewOrderPage() {
             </div>
 
             {/* Listado de clientes */}
-            <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 relative z-10 pt-4 px-6 flex flex-col overflow-hidden">
               <DragScrollList>
                 <div className="space-y-4">
                   {customers

@@ -673,7 +673,18 @@ function SellerHome() {
 
         {/* Solo las tarjetas hacen scroll (se deslizan sobre la capa base) */}
         <div className="flex-1 min-h-0 relative z-10">
-          <div className="h-full overflow-y-auto no-scrollbar min-h-0 px-1 bg-transparent overscroll-contain">
+          {/* Fondo “grueso” estático detrás de las tarjetas */}
+          <div
+            className="absolute inset-0 rounded-3xl border pointer-events-none z-0"
+            style={{
+              background:
+                'linear-gradient(180deg, color-mix(in srgb, var(--app-card) 92%, transparent) 0%, color-mix(in srgb, var(--app-card) 80%, transparent) 100%)',
+              borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+              boxShadow: '0 30px 80px -40px rgba(0,0,0,0.85) inset, 0 20px 50px -30px rgba(0,0,0,0.55)',
+            }}
+          />
+
+          <div className="h-full overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
                 {visits.map((visit) => (
@@ -767,8 +778,8 @@ function VisitCard({ name, address, status, time, orderValue, isDraggable, onChe
         style={{
           background:
             status === 'current'
-              ? 'color-mix(in srgb, rgb(16 185 129 / 0.18) 65%, transparent)'
-              : 'color-mix(in srgb, var(--app-card) 70%, transparent)',
+              ? 'color-mix(in srgb, rgb(16 185 129 / 0.14) 55%, transparent)'
+              : 'color-mix(in srgb, var(--app-card) 55%, transparent)',
         }}
       />
       <div className={cn("absolute top-2 right-2 transition-opacity duration-300", isDraggable ? "text-indigo-400 opacity-100" : "text-slate-700 opacity-50")}>

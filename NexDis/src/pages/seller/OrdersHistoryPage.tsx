@@ -53,8 +53,11 @@ export default function OrdersHistoryPage() {
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
-      <div className="flex items-start justify-between gap-4">
+    <div
+      className="flex-1 overflow-y-auto no-scrollbar px-2 pt-6 space-y-6"
+      style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 120px)' }}
+    >
+      <div className="flex items-start justify-between gap-4 px-2">
         <div className="space-y-1">
           <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase font-display">Historial</h2>
           <p className="text-slate-500 text-xs font-bold uppercase tracking-widest border-l-2 border-emerald-500/30 pl-3">

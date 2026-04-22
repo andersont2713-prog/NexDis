@@ -215,7 +215,7 @@ export default function NewOrderPage() {
             </div>
 
             {/* Listado de clientes */}
-            <div className="flex-1 min-h-0 relative z-10 pt-4 px-6 flex flex-col overflow-hidden">
+            <div className="flex-1 min-h-0 relative z-10 pt-4 px-2 flex flex-col overflow-hidden">
               <DragScrollList>
                 <div className="space-y-4">
                   {customers

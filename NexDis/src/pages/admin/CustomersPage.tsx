@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type FormEvent } from 'react';
 import { Users, Plus, Search, Filter, Mail, Phone, MapPin, CreditCard, ChevronRight, History } from 'lucide-react';
 import { useRegional } from '../../context/RegionalContext';
 import { cn } from '../../lib/utils';
 import { useRealtime } from '../../lib/realtime';
+import { toast } from 'sonner';
 import type { Customer } from '../../types';
 
 export default function CustomersPage() {
@@ -10,6 +11,16 @@ export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    contact: '',
+    phone: '',
+    email: '',
+    address: '',
+    city: 'Lima',
+    creditLimit: 1000,
+  });
 
   const load = () =>
     fetch('/api/customers')
@@ -29,6 +40,33 @@ export default function CustomersPage() {
     }
   });
 
+  const handleCreate = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!createForm.name.trim() || !createForm.address.trim()) {
+      toast.error('Completa Nombre y Dirección');
+      return;
+    }
+
+    const id = toast.loading('Registrando cliente...');
+    try {
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createForm),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'No se pudo registrar el cliente');
+      }
+      toast.success('Cliente registrado', { id });
+      setIsCreateOpen(false);
+      setCreateForm((p) => ({ ...p, name: '', contact: '', phone: '', email: '', address: '' }));
+      load();
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al registrar cliente', { id });
+    }
+  };
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">
       <div className="shrink-0 flex items-center justify-between">
@@ -36,11 +74,125 @@ export default function CustomersPage() {
           <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-1 font-display">Hub de Clientes</h2>
           <p className="text-slate-400 font-medium border-l-2 border-indigo-500/30 pl-4 py-1">CRM Estratégico y Gestión de Cartera.</p>
         </div>
-        <button className="btn-glass">
+        <button className="btn-glass" onClick={() => setIsCreateOpen(true)}>
           <Plus size={18} />
           <span>Registrar Cliente</span>
         </button>
       </div>
+
+      {isCreateOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-6">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsCreateOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-2xl frosted-card border-white/10">
+            <div className="flex items-start justify-between gap-6 mb-6">
+              <div>
+                <h3 className="text-xl font-black text-white italic tracking-tight uppercase">Registrar Cliente</h3>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic">Alta rápida (Admin)</p>
+              </div>
+              <button
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                onClick={() => setIsCreateOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Nombre *</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Ej. Minimarket La Esquina"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Contacto</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.contact}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, contact: e.target.value }))}
+                    placeholder="Ej. Juan Perez"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Teléfono</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.phone}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, phone: e.target.value }))}
+                    placeholder="Ej. 999999999"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Email</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.email}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, email: e.target.value }))}
+                    placeholder="cliente@correo.com"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Dirección *</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.address}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, address: e.target.value }))}
+                    placeholder="Av / Calle / Mz / Lt"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Ciudad</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.city}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, city: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Límite de crédito</label>
+                  <input
+                    type="number"
+                    className="input-glass"
+                    value={createForm.creditLimit}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, creditLimit: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition-all"
+                  onClick={() => setIsCreateOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-glass">
+                  <Plus size={18} />
+                  <span>Crear</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scrollbar">
         <div className="grid grid-cols-12 gap-8">

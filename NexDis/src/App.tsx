@@ -59,6 +59,7 @@ import NewCustomerPage from './pages/seller/NewCustomerPage';
 import ZoneSelectionPage from './pages/seller/ZoneSelectionPage';
 import FieldExpensesPage from './pages/seller/FieldExpensesPage';
 import OrdersHistoryPage from './pages/seller/OrdersHistoryPage';
+import MyCustomersPage from './pages/seller/MyCustomersPage';
 import LoginPage from './pages/auth/LoginPage';
 import type { Zone as ZoneType } from './types';
 
@@ -1060,37 +1061,7 @@ export default function App() {
                   onSelect={setCurrentZone} 
                 />
               } />
-              <Route path="/customers" element={
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase font-display">Mis Clientes</h2>
-                      <p className="text-slate-500 text-xs font-bold uppercase tracking-widest border-l-2 border-indigo-500/30 pl-3">Directorio de Cartera.</p>
-                    </div>
-                    <Link to="/seller/customers/new" className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/20 active:scale-95 transition-transform">
-                      <Plus size={24} />
-                    </Link>
-                  </div>
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-                    <input type="text" placeholder="Buscar cliente..." className="input-glass pl-10" />
-                  </div>
-                  <div className="space-y-4">
-                    {[1, 2, 3, 4].map(i => (
-                      <div key={i} className="frosted-card flex items-center justify-between group active:scale-[0.98] transition-all">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-slate-800 border border-white/5 rounded-xl flex items-center justify-center text-indigo-400 font-black italic">CL</div>
-                          <div>
-                            <h4 className="font-bold text-white text-sm uppercase italic">Comercial Gloria {i}</h4>
-                            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Surquillo • VIP</p>
-                          </div>
-                        </div>
-                        <ChevronRight className="text-slate-600 group-hover:text-white transition-colors" size={20} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              } />
+              <Route path="/customers" element={<MyCustomersPage />} />
               <Route path="/customers/new" element={<NewCustomerPage />} />
               <Route path="/order/new" element={<NewOrderPage />} />
               <Route path="/expenses" element={<FieldExpensesPage />} />

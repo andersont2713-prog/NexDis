@@ -347,12 +347,22 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
 
   return (
     <div className="min-h-screen flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
-      style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)', borderColor: 'var(--app-border)' }}
+      style={{
+        backgroundColor: 'var(--app-bg)',
+        color: 'var(--app-fg)',
+        borderColor: 'var(--app-border)',
+        paddingTop: 'env(safe-area-inset-top)',
+      }}
     >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
       
-      <header className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b sticky top-0 z-50"
-        style={{ background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)', borderColor: 'var(--app-border)' }}
+      <header
+        className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b sticky top-0 z-50"
+        style={{
+          background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)',
+          borderColor: 'var(--app-border)',
+          paddingTop: 'calc(env(safe-area-inset-top) + 1.25rem)',
+        }}
       >
         <div className="flex items-center gap-3">
           <button 

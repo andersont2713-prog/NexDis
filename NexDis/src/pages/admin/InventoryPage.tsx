@@ -10,7 +10,10 @@ export default function InventoryPage() {
   const { formatPrice } = useRegional();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<string[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [createForm, setCreateForm] = useState({
     name: '',
     sku: '',
@@ -24,7 +27,7 @@ export default function InventoryPage() {
     price: 0,
   });
 
-  const load = () =>
+  const loadInventory = () =>
     fetch('/api/inventory')
       .then(res => res.json())
       .then(data => {
@@ -32,14 +35,24 @@ export default function InventoryPage() {
         setLoading(false);
       });
 
+  const loadCategories = () =>
+    fetch('/api/categories')
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) setCategories(data);
+      })
+      .catch(() => {});
+
   useEffect(() => {
-    load();
+    loadInventory();
+    loadCategories();
   }, []);
 
   useRealtime({
     onEvent: (type) => {
-      if (type === 'inventory:updated') load();
-      if (type === 'orders:created') load(); // orders can affect stock in future
+      if (type === 'inventory:updated') loadInventory();
+      if (type === 'orders:created') loadInventory(); // orders can affect stock in future
+      if (type === 'categories:updated') loadCategories();
     }
   });
 
@@ -64,10 +77,36 @@ export default function InventoryPage() {
       toast.success('Producto creado', { id });
       setIsCreateOpen(false);
       setCreateForm((p) => ({ ...p, name: '', sku: '' }));
-      // load() will also be triggered by SSE, but keep immediate UX
-      load();
+      // load will also be triggered by SSE, but keep immediate UX
+      loadInventory();
     } catch (err: any) {
       toast.error(err?.message || 'Error al crear producto', { id });
+    }
+  };
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const name = newCategoryName.trim();
+    if (!name) return;
+
+    const id = toast.loading('Creando categoría...');
+    try {
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name}),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'No se pudo crear la categoría');
+      }
+      toast.success('Categoría creada', {id});
+      setNewCategoryName('');
+      setIsCategoryOpen(false);
+      setCreateForm((p) => ({...p, category: name}));
+      loadCategories();
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al crear categoría', {id});
     }
   };
 
@@ -182,11 +221,27 @@ export default function InventoryPage() {
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Categoría</label>
-                  <input
+                  <select
                     className="input-glass"
                     value={createForm.category}
-                    onChange={(e) => setCreateForm((p) => ({ ...p, category: e.target.value }))}
-                  />
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === '__create__') {
+                        setIsCategoryOpen(true);
+                        return;
+                      }
+                      setCreateForm((p) => ({ ...p, category: v }));
+                    }}
+                  >
+                    {categories.map((c) => (
+                      <option key={c} value={c} className="bg-slate-900">
+                        {c}
+                      </option>
+                    ))}
+                    <option value="__create__" className="bg-slate-900">
+                      + Crear categoría…
+                    </option>
+                  </select>
                 </div>
                 <div className="space-y-1">
                   <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Precio</label>
@@ -204,6 +259,56 @@ export default function InventoryPage() {
                   type="button"
                   className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition-all"
                   onClick={() => setIsCreateOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-glass">
+                  <Plus size={18} />
+                  <span>Crear</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isCategoryOpen && (
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-6">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setIsCategoryOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-md frosted-card border-white/10">
+            <div className="flex items-start justify-between gap-6 mb-6">
+              <div>
+                <h3 className="text-lg font-black text-white italic tracking-tight uppercase">Crear categoría</h3>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic">Disponible para todos los productos</p>
+              </div>
+              <button
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                onClick={() => setIsCategoryOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateCategory} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Nombre</label>
+                <input
+                  className="input-glass"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  placeholder="Ej. Granos, Aceites, Snacks..."
+                  autoFocus
+                />
+              </div>
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition-all"
+                  onClick={() => setIsCategoryOpen(false)}
                 >
                   Cancelar
                 </button>

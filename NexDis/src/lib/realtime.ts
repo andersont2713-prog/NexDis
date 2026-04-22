@@ -5,7 +5,8 @@ type RealtimeEventType =
   | 'ping'
   | 'customers:created'
   | 'orders:created'
-  | 'inventory:updated';
+  | 'inventory:updated'
+  | 'categories:updated';
 
 type UseRealtimeOptions = {
   onEvent: (type: RealtimeEventType, data: any) => void;
@@ -36,6 +37,7 @@ export function useRealtime({onEvent, enabled = true}: UseRealtimeOptions) {
     es.addEventListener('customers:created', handle('customers:created'));
     es.addEventListener('orders:created', handle('orders:created'));
     es.addEventListener('inventory:updated', handle('inventory:updated'));
+    es.addEventListener('categories:updated', handle('categories:updated'));
 
     es.onerror = () => {
       // Browser auto-reconnects EventSource; keep silent.

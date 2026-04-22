@@ -17,7 +17,8 @@ async function startServer() {
   type RealtimeEvent =
     | { type: 'customers:created'; payload: any }
     | { type: 'orders:created'; payload: any }
-    | { type: 'inventory:updated'; payload: any };
+    | { type: 'inventory:updated'; payload: any }
+    | { type: 'categories:updated'; payload: any };
 
   const sseClients = new Set<express.Response>();
 
@@ -38,6 +39,7 @@ async function startServer() {
       { id: '1', name: 'Arroz Premium 1kg', sku: 'ARZ-001', stock: 1200, minStock: 200, maxStock: 5000, warehouse: 'Principal', lot: 'L2024-001', expiry: '2025-12-31' },
       { id: '2', name: 'Aceite Girasol 900ml', sku: 'ACE-900', stock: 850, minStock: 100, maxStock: 2000, warehouse: 'Norte', lot: 'L2024-052', expiry: '2025-06-15' },
     ],
+    categories: ['General', 'Abarrotes', 'Bebidas', 'Lácteos', 'Limpieza'],
     customers: [
       { id: '1', name: 'Minimarket La Esquina', contact: 'Juan Perez', creditLimit: 50000, currentBalance: 12500, lat: -12.046374, lng: -77.042793, history: [] },
       { id: '2', name: 'Tienda Don Pepe', contact: 'Jose Garcia', creditLimit: 20000, currentBalance: 5000, lat: -12.050000, lng: -77.050000, history: [] },
@@ -69,6 +71,18 @@ async function startServer() {
   });
 
   app.get('/api/inventory', (req, res) => res.json(db.inventory));
+  app.get('/api/categories', (req, res) => res.json(db.categories));
+  app.post('/api/categories', (req, res) => {
+    const name = String(req.body?.name ?? '').trim();
+    if (!name) return res.status(400).json({ error: 'name is required' });
+
+    const exists = db.categories.some((c: string) => c.toLowerCase() === name.toLowerCase());
+    if (exists) return res.status(409).json({ error: 'category already exists' });
+
+    db.categories.push(name);
+    broadcast({ type: 'categories:updated', payload: { name } });
+    return res.status(201).json({ name });
+  });
   app.post('/api/inventory', (req, res) => {
     const body = req.body ?? {};
     if (!body?.name || !body?.sku) {

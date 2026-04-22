@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { 
   ChevronLeft, 
   Search, 
@@ -15,7 +15,9 @@ import {
   Share2,
   Download,
   MessageCircle,
-  ArrowRight
+  ArrowRight,
+  Filter,
+  Users,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRegional } from '../../context/RegionalContext';
@@ -146,51 +148,133 @@ export default function NewOrderPage() {
         </div>
       </div>
 
-      {/* Step 1: Customer Selection */}
+      {/* Step 1: Seleccionar Cliente (misma modalidad que Ruta de Hoy) */}
       {step === 1 && (
-        <div className="flex-1 overflow-y-auto p-6 space-y-8 relative z-10">
-          <div className="space-y-4">
-             <div className="space-y-1">
-                <h3 className="text-2xl font-black text-white italic tracking-tight uppercase">Seleccionar Cliente</h3>
-                <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.2em] italic border-l-2 border-indigo-500/30 pl-3">Identifique el punto de venta.</p>
-             </div>
-             <div className="relative">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-               <input 
-                 type="text" 
-                 placeholder="Buscar cliente..." 
-                 className="input-glass pl-10 h-12"
-                 value={customerSearch}
-                 onChange={(e) => setCustomerSearch(e.target.value)}
-               />
-             </div>
-          </div>
-          
-          <div className="space-y-4">
-            {customers
-              .filter(c => c.name.toLowerCase().includes(customerSearch.toLowerCase()) || c.id.toLowerCase().includes(customerSearch.toLowerCase()))
-              .map(c => (
-              <button 
-                key={c.id} 
-                onClick={() => { setSelectedCustomer(c); setStep(2); }}
-                className={cn(
-                  "w-full frosted-card text-left flex items-center justify-between transition-all group relative overflow-hidden active:scale-[0.98]",
-                  selectedCustomer?.id === c.id ? "border-indigo-500 bg-indigo-500/5 shadow-2xl shadow-indigo-500/10" : "border-white/5 hover:border-indigo-500/30"
-                )}
-              >
-                <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-14 h-14 bg-slate-800 border border-white/5 text-indigo-400 rounded-2xl flex items-center justify-center font-black italic text-xl shadow-inner group-hover:scale-110 transition-transform">
-                    {c.name.substring(0, 2)}
+        <div className="flex-1 flex flex-col min-h-0 relative z-10 overflow-hidden">
+          <div className="flex-1 overflow-hidden px-6 py-6 pb-0 flex flex-col min-h-0 relative">
+            {/* Capa base estática */}
+            <div
+              className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"
+              style={{
+                background:
+                  'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
+              }}
+            />
+
+            {/* Cabecera principal */}
+            <div
+              className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
+              style={{
+                borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
+                background:
+                  'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 22%, var(--app-bg)) 100%)',
+                boxShadow:
+                  '0 30px 80px -45px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
+              }}
+            >
+              <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
+              <div className="absolute -right-12 -bottom-12 w-44 h-44 rounded-full blur-[60px] opacity-20 bg-emerald-500" />
+
+              <div className="p-4 relative">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                      Pedido • Paso 1
+                    </p>
+                    <h2 className="text-xl font-black italic tracking-tight text-white uppercase leading-none mt-0.5">
+                      Seleccionar Cliente
+                    </h2>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
+                      {customers.filter(c =>
+                        c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                        c.id.toLowerCase().includes(customerSearch.toLowerCase())
+                      ).length} cliente(s)
+                    </p>
                   </div>
-                  <div>
-                    <h4 className="font-bold text-white tracking-tight">{c.name}</h4>
-                    <p className="text-[10px] text-slate-500 font-bold uppercase italic tracking-widest mt-1">{c.city} • Límite: {formatPrice(c.creditLimit)}</p>
+
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                      style={{
+                        borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                        background: 'color-mix(in srgb, var(--app-card) 40%, transparent)',
+                        color: 'var(--app-fg)',
+                      }}
+                      title="Filtros"
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        <Filter size={16} className="text-emerald-400" />
+                        Filtros
+                      </span>
+                    </button>
                   </div>
                 </div>
-                <CheckCircle2 size={24} className={cn("transition-all duration-500", selectedCustomer?.id === c.id ? "text-indigo-500 opacity-100 scale-110" : "text-slate-700 opacity-20")} />
-                {selectedCustomer?.id === c.id && <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 shadow-[2px_0_10px_rgba(99,102,241,0.5)]"></div>}
-              </button>
-            ))}
+
+                <div className="mt-3 flex items-center gap-3">
+                  <div
+                    className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic"
+                    style={{
+                      borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                      background: 'color-mix(in srgb, rgb(99 102 241 / 0.18) 60%, transparent)',
+                      color: 'var(--app-fg)',
+                    }}
+                    title="Clientes"
+                  >
+                    <span className="inline-flex items-center gap-2">
+                      <Users size={16} className="text-indigo-400" />
+                      Clientes
+                    </span>
+                  </div>
+
+                  <div className="flex-1 min-w-0 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                    <input
+                      type="text"
+                      placeholder="Buscar cliente…"
+                      className="input-glass pl-10 !py-2"
+                      value={customerSearch}
+                      onChange={(e) => setCustomerSearch(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Listado de clientes */}
+            <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
+              <DragScrollList>
+                <div className="space-y-4">
+                  {customers
+                    .filter(c =>
+                      c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
+                      c.id.toLowerCase().includes(customerSearch.toLowerCase())
+                    )
+                    .map(c => (
+                      <button
+                        key={c.id}
+                        onClick={() => { setSelectedCustomer(c); setStep(2); }}
+                        className={cn(
+                          "w-full frosted-card text-left flex items-center justify-between transition-all group relative overflow-hidden active:scale-[0.98]",
+                          selectedCustomer?.id === c.id ? "border-indigo-500 bg-indigo-500/5 shadow-2xl shadow-indigo-500/10" : "border-white/5 hover:border-indigo-500/30"
+                        )}
+                      >
+                        <div className="flex items-center gap-4 relative z-10">
+                          <div className="w-14 h-14 bg-slate-800 border border-white/5 text-indigo-400 rounded-2xl flex items-center justify-center font-black italic text-xl shadow-inner group-hover:scale-110 transition-transform">
+                            {c.name.substring(0, 2)}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-white tracking-tight">{c.name}</h4>
+                            <p className="text-[10px] text-slate-500 font-bold uppercase italic tracking-widest mt-1">{c.city} • Límite: {formatPrice(c.creditLimit)}</p>
+                          </div>
+                        </div>
+                        <CheckCircle2 size={24} className={cn("transition-all duration-500", selectedCustomer?.id === c.id ? "text-indigo-500 opacity-100 scale-110" : "text-slate-700 opacity-20")} />
+                        {selectedCustomer?.id === c.id && <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500 shadow-[2px_0_10px_rgba(99,102,241,0.5)]"></div>}
+                      </button>
+                    ))}
+                </div>
+              </DragScrollList>
+            </div>
           </div>
         </div>
       )}
@@ -396,6 +480,52 @@ export default function NewOrderPage() {
         )}
       </div>
       )}
+    </div>
+  );
+}
+
+/** Contenedor con scroll vertical que además permite arrastrar con el dedo/mouse. */
+function DragScrollList({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const state = useRef({
+    dragging: false,
+    startY: 0,
+    startScroll: 0,
+  });
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'touch') return;
+    const el = ref.current;
+    if (!el) return;
+    state.current.dragging = true;
+    state.current.startY = e.clientY;
+    state.current.startScroll = el.scrollTop;
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!state.current.dragging) return;
+    const el = ref.current;
+    if (!el) return;
+    const dy = e.clientY - state.current.startY;
+    el.scrollTop = state.current.startScroll - dy;
+  };
+
+  const endDrag = () => {
+    state.current.dragging = false;
+  };
+
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onPointerLeave={endDrag}
+      className="flex-1 overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
+      style={{ touchAction: 'pan-y' }}
+    >
+      {children}
     </div>
   );
 }

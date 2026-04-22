@@ -12,6 +12,9 @@ import {
   sbListCustomers,
   sbInsertCustomer,
   sbInsertOrder,
+  sbListOrders,
+  sbUpdateOrderStatus,
+  sbDecrementStock,
   sbStats,
 } from './server/supabaseRepo.ts';
 
@@ -204,20 +207,94 @@ async function startServer() {
 
   app.post('/api/orders', async (req, res) => {
     try {
+      const items = Array.isArray(req.body?.items) ? req.body.items : [];
+      const normalizedItems = items.map((i: any) => ({
+        productId: String(i.productId),
+        quantity: Number(i.quantity ?? 0),
+      })).filter((i: any) => i.productId && i.quantity > 0);
+
+      if (normalizedItems.length === 0) {
+        return res.status(400).json({ error: 'items is required' });
+      }
+
+      const base = {
+        ...req.body,
+        id: Date.now().toString(),
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+      };
+
       const sb = getSupabaseAdmin();
-      const base = {...req.body, id: Date.now().toString(), status: 'pending', createdAt: new Date()};
       if (sb) {
+        await sbDecrementStock(sb, normalizedItems);
         const order = await sbInsertOrder(sb, base);
         broadcast({ type: 'orders:created', payload: order });
+        // emit inventory updated (clients will refetch)
+        broadcast({ type: 'inventory:updated', payload: { reason: 'order', orderId: base.id } });
         return res.json(order);
+      }
+
+      // mock: decrement stock in memory
+      for (const item of normalizedItems) {
+        const product = db.inventory.find((p: any) => p.id === item.productId);
+        if (!product) return res.status(404).json({ error: `Producto no existe: ${item.productId}` });
+        if (product.stock < item.quantity) {
+          return res.status(409).json({ error: `Stock insuficiente para ${product.sku}`, sku: product.sku, stock: product.stock, requested: item.quantity });
+        }
+      }
+      for (const item of normalizedItems) {
+        const product = db.inventory.find((p: any) => p.id === item.productId);
+        product.stock -= item.quantity;
       }
 
       db.orders.push(base);
       broadcast({ type: 'orders:created', payload: base });
+      broadcast({ type: 'inventory:updated', payload: { reason: 'order', orderId: base.id } });
       res.json(base);
     } catch (e: any) {
       console.error(e);
+      const msg = String(e?.message ?? e ?? '');
+      if (msg.includes('Stock insuficiente')) return res.status(409).json({ error: msg });
       res.status(500).json({ error: e?.message ?? 'Error al crear pedido' });
+    }
+  });
+
+  app.get('/api/orders', async (req, res) => {
+    try {
+      const sellerId = req.query.sellerId ? String(req.query.sellerId) : undefined;
+      const sb = getSupabaseAdmin();
+      if (sb) return res.json(await sbListOrders(sb, { sellerId }));
+
+      const orders = sellerId ? db.orders.filter((o: any) => o.sellerId === sellerId) : db.orders;
+      res.json(orders);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al leer pedidos' });
+    }
+  });
+
+  app.patch('/api/orders/:id/status', async (req, res) => {
+    const id = String(req.params.id);
+    const status = String(req.body?.status ?? '').trim();
+    const allowed = new Set(['pending', 'processed', 'shipped', 'delivered', 'cancelled']);
+    if (!allowed.has(status)) return res.status(400).json({ error: 'invalid status' });
+
+    try {
+      const sb = getSupabaseAdmin();
+      if (sb) {
+        const updated = await sbUpdateOrderStatus(sb, id, status);
+        broadcast({ type: 'orders:created', payload: updated }); // reuse event to trigger refetch
+        return res.json(updated);
+      }
+
+      const idx = db.orders.findIndex((o: any) => String(o.id) === id);
+      if (idx === -1) return res.status(404).json({ error: 'order not found' });
+      db.orders[idx] = { ...db.orders[idx], status };
+      broadcast({ type: 'orders:created', payload: db.orders[idx] });
+      return res.json(db.orders[idx]);
+    } catch (e: any) {
+      console.error(e);
+      res.status(500).json({ error: e?.message ?? 'Error al actualizar estado' });
     }
   });
 

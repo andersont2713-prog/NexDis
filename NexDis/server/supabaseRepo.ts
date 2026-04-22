@@ -166,3 +166,52 @@ export async function sbStats(sb: SupabaseClient) {
     lowStockCount,
   };
 }
+
+export async function sbListOrders(
+  sb: SupabaseClient,
+  opts: { sellerId?: string } = {},
+): Promise<any[]> {
+  const q = sb.from('orders').select('payload,created_at').order('created_at', {ascending: false});
+  const {data, error} = opts.sellerId ? await q.eq('payload->>sellerId', opts.sellerId) : await q;
+  if (error) throw error;
+  return (data ?? []).map((r: any) => r.payload);
+}
+
+export async function sbUpdateOrderStatus(
+  sb: SupabaseClient,
+  id: string,
+  status: string,
+): Promise<any> {
+  const {data: existing, error: e1} = await sb.from('orders').select('payload').eq('id', id).single();
+  if (e1) throw e1;
+  const payload = {...(existing as any).payload, status};
+  const {error: e2} = await sb.from('orders').update({payload}).eq('id', id);
+  if (e2) throw e2;
+  return payload;
+}
+
+export async function sbDecrementStock(
+  sb: SupabaseClient,
+  items: {productId: string; quantity: number}[],
+): Promise<void> {
+  const ids = Array.from(new Set(items.map((i) => i.productId)));
+  const {data, error} = await sb.from('products').select('id,stock').in('id', ids);
+  if (error) throw error;
+
+  const byId = new Map<string, number>();
+  for (const r of data ?? []) byId.set((r as any).id, Number((r as any).stock ?? 0));
+
+  for (const item of items) {
+    const current = byId.get(item.productId);
+    if (current == null) throw new Error(`Producto no existe: ${item.productId}`);
+    if (current < item.quantity) {
+      throw new Error(`Stock insuficiente para ${item.productId}: ${current} < ${item.quantity}`);
+    }
+    byId.set(item.productId, current - item.quantity);
+  }
+
+  for (const [id, newStock] of byId.entries()) {
+    const {error: e2} = await sb.from('products').update({stock: newStock}).eq('id', id);
+    if (e2) throw e2;
+  }
+}

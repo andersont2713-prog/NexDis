@@ -58,6 +58,7 @@ import NewOrderPage from './pages/seller/NewOrderPage';
 import NewCustomerPage from './pages/seller/NewCustomerPage';
 import ZoneSelectionPage from './pages/seller/ZoneSelectionPage';
 import FieldExpensesPage from './pages/seller/FieldExpensesPage';
+import OrdersHistoryPage from './pages/seller/OrdersHistoryPage';
 import LoginPage from './pages/auth/LoginPage';
 import type { Zone as ZoneType } from './types';
 
@@ -830,32 +831,7 @@ export default function App() {
               <Route path="/customers/new" element={<NewCustomerPage />} />
               <Route path="/order/new" element={<NewOrderPage />} />
               <Route path="/expenses" element={<FieldExpensesPage />} />
-              <Route path="/history" element={
-                 <div className="flex-1 overflow-y-auto p-6 space-y-6 pb-32">
-                    <div className="space-y-1">
-                      <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase font-display">Historial</h2>
-                      <p className="text-slate-500 text-xs font-bold uppercase tracking-widest border-l-2 border-emerald-500/30 pl-3">Pedidos enviados recientemente.</p>
-                    </div>
-                    <div className="space-y-4">
-                      {[1, 2, 3].map(i => (
-                        <div key={i} className="frosted-card bg-emerald-500/5 border-emerald-500/10 group">
-                           <div className="flex items-center justify-between mb-3">
-                              <span className="text-[10px] font-black text-emerald-400 uppercase tracking-[0.2em] italic bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Sincronizado</span>
-                              <span className="text-[10px] font-mono text-slate-500">2026-04-21 09:1{i}</span>
-                           </div>
-                           <h4 className="font-bold text-white uppercase italic tracking-tight">PED-#992{i}</h4>
-                           <div className="flex items-center justify-between mt-4">
-                              <p className="text-xl font-black text-white font-mono tracking-tighter">$1,240.00</p>
-                              <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-500 uppercase italic">
-                                 <Package size={12} className="text-indigo-400" />
-                                 12 Items
-                              </div>
-                           </div>
-                        </div>
-                      ))}
-                    </div>
-                 </div>
-              } />
+              <Route path="/history" element={<OrdersHistoryPage />} />
               <Route path="/catalog" element={<CatalogPage />} />
             </Routes>
           </SellerLayout>

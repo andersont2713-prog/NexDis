@@ -348,7 +348,7 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
   const headerHeight = 76; // base header height (without safe-area)
 
   return (
-    <div className="min-h-screen flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
+    <div className="h-[100dvh] flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
       style={{
         backgroundColor: 'var(--app-bg)',
         color: 'var(--app-fg)',
@@ -745,8 +745,8 @@ function SellerHome() {
         </div>
 
         {/* Tarjetas: se deslizan sobre la capa */}
-        <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4">
-          <div className="h-full overflow-y-auto custom-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
+        <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-auto custom-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10">
             <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
               <AnimatePresence>
                 {visits.map((visit) => (

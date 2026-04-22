@@ -131,23 +131,6 @@ export default function NewOrderPage() {
     <div className="flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
       <div className="decorative-blur top-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/10"></div>
 
-      {/* Header */}
-      <div className="p-6 shrink-0 border-b border-white/5 flex items-center justify-between sticky top-0 bg-slate-900/40 backdrop-blur-md z-20">
-        <div className="flex items-center gap-4">
-          <button onClick={() => step > 1 ? setStep(step - 1) : navigate('/seller')} className="p-2.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-xl transition-all">
-            <ChevronLeft size={22} />
-          </button>
-          <h2 className="text-xl font-black text-white italic tracking-tighter uppercase font-display">
-            {step === 1 ? 'Cliente' : step === 2 ? 'Catálogo' : 'Finalizar'}
-          </h2>
-        </div>
-        <div className="flex gap-1.5 items-center">
-          {[1, 2, 3].map(s => (
-            <div key={s} className={cn("w-2 h-2 rounded-full transition-all duration-500", step === s ? "bg-indigo-500 w-6 shadow-[0_0_10px_rgba(99,102,241,0.5)]" : "bg-white/10")}></div>
-          ))}
-        </div>
-      </div>
-
       {/* Step 1: Seleccionar Cliente (misma modalidad que Ruta de Hoy) */}
       {step === 1 && (
         <div className="flex-1 flex flex-col min-h-0 relative z-10 overflow-hidden">

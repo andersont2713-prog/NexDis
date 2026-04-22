@@ -69,6 +69,30 @@ async function startServer() {
   });
 
   app.get('/api/inventory', (req, res) => res.json(db.inventory));
+  app.post('/api/inventory', (req, res) => {
+    const body = req.body ?? {};
+    if (!body?.name || !body?.sku) {
+      return res.status(400).json({ error: 'name and sku are required' });
+    }
+
+    const product = {
+      id: `PROD-${Date.now()}`,
+      name: body.name,
+      sku: body.sku,
+      stock: Number(body.stock ?? 0),
+      minStock: Number(body.minStock ?? 0),
+      maxStock: Number(body.maxStock ?? 0),
+      warehouse: body.warehouse ?? 'Principal',
+      lot: body.lot ?? 'N/A',
+      expiry: body.expiry ?? '2099-12-31',
+      price: Number(body.price ?? 0),
+      category: body.category ?? 'General',
+    };
+
+    db.inventory.push(product);
+    broadcast({ type: 'inventory:updated', payload: product });
+    return res.status(201).json(product);
+  });
   app.get('/api/customers', (req, res) => res.json(db.customers));
   
   app.post('/api/customers', (req, res) => {

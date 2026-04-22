@@ -10,6 +10,19 @@ export default function InventoryPage() {
   const { formatPrice } = useRegional();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    name: '',
+    sku: '',
+    warehouse: 'Principal',
+    category: 'General',
+    stock: 0,
+    minStock: 0,
+    maxStock: 1000,
+    lot: 'N/A',
+    expiry: '2099-12-31',
+    price: 0,
+  });
 
   const load = () =>
     fetch('/api/inventory')
@@ -29,6 +42,34 @@ export default function InventoryPage() {
       if (type === 'orders:created') load(); // orders can affect stock in future
     }
   });
+
+  const handleCreate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.name.trim() || !createForm.sku.trim()) {
+      toast.error('Completa Nombre y SKU');
+      return;
+    }
+
+    const id = toast.loading('Creando producto...');
+    try {
+      const res = await fetch('/api/inventory', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(createForm),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error || 'No se pudo crear el producto');
+      }
+      toast.success('Producto creado', { id });
+      setIsCreateOpen(false);
+      setCreateForm((p) => ({ ...p, name: '', sku: '' }));
+      // load() will also be triggered by SSE, but keep immediate UX
+      load();
+    } catch (err: any) {
+      toast.error(err?.message || 'Error al crear producto', { id });
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">
@@ -50,12 +91,131 @@ export default function InventoryPage() {
             <Warehouse size={18} />
             <span>Generar Reporte</span>
           </button>
-          <button className="btn-glass">
+          <button className="btn-glass" onClick={() => setIsCreateOpen(true)}>
             <Plus size={18} />
             <span>Nuevo Producto</span>
           </button>
         </div>
       </div>
+
+      {isCreateOpen && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-6">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsCreateOpen(false)}
+          />
+          <div className="relative z-10 w-full max-w-xl frosted-card border-white/10">
+            <div className="flex items-start justify-between gap-6 mb-6">
+              <div>
+                <h3 className="text-xl font-black text-white italic tracking-tight uppercase">Nuevo Producto</h3>
+                <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest italic">Alta rápida de inventario</p>
+              </div>
+              <button
+                className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:bg-white/10 transition-all"
+                onClick={() => setIsCreateOpen(false)}
+                type="button"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleCreate} className="space-y-5">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Nombre *</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Ej. Arroz Premium 1kg"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">SKU *</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.sku}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, sku: e.target.value }))}
+                    placeholder="Ej. ARZ-001"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Stock</label>
+                  <input
+                    type="number"
+                    className="input-glass"
+                    value={createForm.stock}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, stock: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Mínimo</label>
+                  <input
+                    type="number"
+                    className="input-glass"
+                    value={createForm.minStock}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, minStock: Number(e.target.value) }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Máximo</label>
+                  <input
+                    type="number"
+                    className="input-glass"
+                    value={createForm.maxStock}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, maxStock: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Almacén</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.warehouse}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, warehouse: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Categoría</label>
+                  <input
+                    className="input-glass"
+                    value={createForm.category}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, category: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-black uppercase tracking-widest italic text-slate-500">Precio</label>
+                  <input
+                    type="number"
+                    className="input-glass"
+                    value={createForm.price}
+                    onChange={(e) => setCreateForm((p) => ({ ...p, price: Number(e.target.value) }))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10 transition-all"
+                  onClick={() => setIsCreateOpen(false)}
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-glass">
+                  <Plus size={18} />
+                  <span>Crear</span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto space-y-8 pr-1 custom-scrollbar">
         {/* Stats Summary */}

@@ -757,9 +757,20 @@ function VisitCard({ name, address, status, time, orderValue, isDraggable, onChe
       onClick={status === 'pending' ? onSelect : undefined}
       className={cn(
       "p-5 rounded-2xl border transition-all relative overflow-hidden backdrop-blur-md select-none",
-      status === 'current' ? "border-emerald-500/50 bg-emerald-500/5 shadow-2xl shadow-emerald-500/10" : "border-white/5 bg-white/5 hover:bg-white/10 cursor-pointer",
+      status === 'current'
+        ? "border-emerald-500/50 shadow-2xl shadow-emerald-500/10"
+        : "border-white/5 cursor-pointer",
       isDraggable ? "cursor-grabbing ring-2 ring-indigo-500 scale-[1.02]" : ""
     )}>
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            status === 'current'
+              ? 'color-mix(in srgb, rgb(16 185 129 / 0.18) 65%, transparent)'
+              : 'color-mix(in srgb, var(--app-card) 70%, transparent)',
+        }}
+      />
       <div className={cn("absolute top-2 right-2 transition-opacity duration-300", isDraggable ? "text-indigo-400 opacity-100" : "text-slate-700 opacity-50")}>
          <GripVertical size={20} />
       </div>

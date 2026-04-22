@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Search, Filter, ShoppingCart, ChevronLeft, Info, Package, ArrowLeft, Plus } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Search, Filter, ArrowLeft, Plus, Package } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useRegional } from '../../context/RegionalContext';
 import { cn } from '../../lib/utils';
 import type { Product } from '../../types';
@@ -13,77 +13,229 @@ export default function CatalogPage() {
 
   useEffect(() => {
     fetch('/api/inventory')
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setProducts);
   }, []);
 
+  const filtered = products.filter(
+    (p) =>
+      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.sku.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
+
   return (
-    <div className="flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
-      <div className="decorative-blur top-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/10"></div>
-      
-      <div className="p-6 shrink-0 border-b border-white/5 flex items-center gap-4 relative z-10 backdrop-blur-md bg-slate-900/40">
-        <button onClick={() => navigate('/seller')} className="p-2.5 hover:bg-white/5 text-slate-400 hover:text-white rounded-xl border border-transparent hover:border-white/10 transition-all">
-           <ArrowLeft size={22} />
-        </button>
-        <h2 className="text-2xl font-black text-white italic tracking-tighter uppercase font-display">Catálogo Express</h2>
-      </div>
+    <div
+      className="flex-1 flex flex-col h-full relative overflow-hidden"
+      style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}
+    >
+      <div className="flex-1 overflow-hidden px-6 py-6 pb-0 flex flex-col min-h-0 relative">
+        {/* Capa base estática detrás del contenido */}
+        <div
+          className="absolute inset-0 pointer-events-none z-0 rounded-[32px]"
+          style={{
+            background:
+              'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
+          }}
+        />
 
-      <div className="p-4 shrink-0 bg-white/5 flex items-center gap-3 relative z-10 border-b border-white/5 backdrop-blur-xl">
-        <div className="relative flex-1">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input 
-            type="text" 
-            placeholder="Nombre o SKU..." 
-            className="input-glass pl-10 h-11"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        {/* Cabecera principal (mismo estilo que Ruta de Hoy) */}
+        <div
+          className="shrink-0 relative z-20 rounded-3xl border backdrop-blur-2xl overflow-hidden sticky top-0"
+          style={{
+            borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
+            background:
+              'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 22%, var(--app-bg)) 100%)',
+            boxShadow:
+              '0 30px 80px -45px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
+          <div className="absolute -right-12 -bottom-12 w-44 h-44 rounded-full blur-[60px] opacity-20 bg-emerald-500" />
+
+          <div className="p-4 relative">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 flex items-start gap-3">
+                <button
+                  onClick={() => navigate('/seller')}
+                  className="p-2 rounded-xl border text-slate-300 hover:text-white transition-all active:scale-95"
+                  style={{
+                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                    background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
+                  }}
+                  title="Volver"
+                >
+                  <ArrowLeft size={18} />
+                </button>
+                <div className="min-w-0">
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                    Field • Venta rápida
+                  </p>
+                  <h2 className="text-xl font-black italic tracking-tight text-white uppercase leading-none mt-0.5">
+                    Catálogo Express
+                  </h2>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
+                    {filtered.length} producto{filtered.length === 1 ? '' : 's'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                  style={{
+                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                    background: 'color-mix(in srgb, var(--app-card) 40%, transparent)',
+                    color: 'var(--app-fg)',
+                  }}
+                  title="Filtros"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    <Filter size={16} className="text-emerald-400" />
+                    Filtros
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center gap-3">
+              <div
+                className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic"
+                style={{
+                  borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                  background: 'color-mix(in srgb, rgb(99 102 241 / 0.18) 60%, transparent)',
+                  color: 'var(--app-fg)',
+                }}
+                title="Catálogo"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Package size={16} className="text-indigo-400" />
+                  Catálogo
+                </span>
+              </div>
+
+              <div className="flex-1 min-w-0 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                <input
+                  type="text"
+                  placeholder="Buscar nombre o SKU…"
+                  className="input-glass pl-10 !py-2"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          </div>
         </div>
-        <button className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-slate-400 hover:text-white transition-all">
-           <Filter size={22} />
-        </button>
-      </div>
 
-      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5 relative z-10 pb-28">
-         {products
-           .filter(p => 
-             p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-             p.sku.toLowerCase().includes(searchTerm.toLowerCase())
-           )
-           .map(product => (
-           <div key={product.id} className="frosted-card flex gap-5 hover:border-indigo-500/30 transition-all active:scale-[0.98] group relative overflow-hidden">
-              <div className="w-28 h-28 bg-slate-800 rounded-2xl overflow-hidden shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500 shadow-inner">
-                 <img src={`https://picsum.photos/seed/${product.sku}/200/200`} alt="p" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-              </div>
-              <div className="flex-1 flex flex-col justify-between py-1">
-                 <div>
-                    <h4 className="font-black text-white italic tracking-tight leading-tight uppercase text-base">{product.name}</h4>
-                    <p className="text-[10px] text-indigo-400 font-bold uppercase italic tracking-widest mt-1">PRODUCT SKU: {product.sku}</p>
-                 </div>
-                 <div className="flex items-end justify-between">
-                    <div>
-                        <p className="text-xl font-black text-white font-mono tracking-tighter uppercase">{formatPrice(product.price ?? 4.50)}</p>
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                           <span className={cn(
-                             "w-1.5 h-1.5 rounded-full shadow-[0_0_8px]",
-                             product.stock > 100 ? "bg-emerald-500 shadow-emerald-500/50" : "bg-rose-500 shadow-rose-500/50"
-                           )}></span>
-                           <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter italic">
-                              En Stock: {product.stock}
-                           </p>
-                        </div>
-                    </div>
-                    <button className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-600/20 active:scale-90 transition-all active:rotate-12 border border-white/10 hover:bg-indigo-500 translate-y-1">
-                       <Plus size={24} className="stroke-[3]" />
-                    </button>
-                 </div>
-              </div>
-              <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/30 group-hover:bg-indigo-500 transition-all"></div>
-           </div>
-         ))}
+        {/* Listado de productos: mismo patrón que las tarjetas de Ruta de Hoy */}
+        <div className="flex-1 min-h-0 relative z-10 -mt-4 pt-4 flex flex-col overflow-hidden">
+          <DragScrollList>
+            <div className="space-y-4">
+              {filtered.map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  price={formatPrice(product.price ?? 4.5)}
+                />
+              ))}
+            </div>
+          </DragScrollList>
+        </div>
       </div>
     </div>
   );
 }
 
+function ProductCard({ product, price }: { product: Product; price: string }) {
+  return (
+    <div className="frosted-card flex gap-5 hover:border-indigo-500/30 transition-all active:scale-[0.98] group relative overflow-hidden">
+      <div className="w-28 h-28 bg-slate-800 rounded-2xl overflow-hidden shrink-0 border border-white/5 group-hover:scale-105 transition-transform duration-500 shadow-inner">
+        <img
+          src={product.imageUrl || `https://picsum.photos/seed/${product.sku}/200/200`}
+          alt="p"
+          className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+        />
+      </div>
+      <div className="flex-1 flex flex-col justify-between py-1">
+        <div>
+          <h4 className="font-black text-white italic tracking-tight leading-tight uppercase text-base">
+            {product.name}
+          </h4>
+          <p className="text-[10px] text-indigo-400 font-bold uppercase italic tracking-widest mt-1">
+            PRODUCT SKU: {product.sku}
+          </p>
+        </div>
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-xl font-black text-white font-mono tracking-tighter uppercase">{price}</p>
+            <div className="flex items-center gap-1.5 mt-1.5">
+              <span
+                className={cn(
+                  'w-1.5 h-1.5 rounded-full shadow-[0_0_8px]',
+                  product.stock > 100
+                    ? 'bg-emerald-500 shadow-emerald-500/50'
+                    : 'bg-rose-500 shadow-rose-500/50',
+                )}
+              ></span>
+              <p className="text-[10px] font-black text-slate-500 uppercase tracking-tighter italic">
+                En Stock: {product.stock}
+              </p>
+            </div>
+          </div>
+          <button className="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-600/20 active:scale-90 transition-all active:rotate-12 border border-white/10 hover:bg-indigo-500 translate-y-1">
+            <Plus size={24} className="stroke-[3]" />
+          </button>
+        </div>
+      </div>
+      <div className="absolute top-0 left-0 w-1 h-full bg-indigo-500/30 group-hover:bg-indigo-500 transition-all"></div>
+    </div>
+  );
+}
 
+/** Contenedor con scroll vertical que además permite arrastrar con el dedo/mouse. */
+function DragScrollList({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const state = useRef({
+    dragging: false,
+    startY: 0,
+    startScroll: 0,
+  });
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType === 'touch') return;
+    const el = ref.current;
+    if (!el) return;
+    state.current.dragging = true;
+    state.current.startY = e.clientY;
+    state.current.startScroll = el.scrollTop;
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!state.current.dragging) return;
+    const el = ref.current;
+    if (!el) return;
+    const dy = e.clientY - state.current.startY;
+    el.scrollTop = state.current.startScroll - dy;
+  };
+
+  const endDrag = () => {
+    state.current.dragging = false;
+  };
+
+  return (
+    <div
+      ref={ref}
+      onPointerDown={onPointerDown}
+      onPointerMove={onPointerMove}
+      onPointerUp={endDrag}
+      onPointerCancel={endDrag}
+      onPointerLeave={endDrag}
+      className="flex-1 overflow-y-auto no-scrollbar min-h-0 px-3 py-3 bg-transparent overscroll-contain relative z-10"
+      style={{ touchAction: 'pan-y' }}
+    >
+      {children}
+    </div>
+  );
+}

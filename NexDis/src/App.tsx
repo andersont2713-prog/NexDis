@@ -662,15 +662,30 @@ function SellerHome() {
           </button>
         </div>
 
-        {/* Solo las tarjetas hacen scroll */}
-        <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
-          <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
-            <AnimatePresence>
-              {visits.map((visit) => (
-                <VisitCardWrapper key={visit.id} visit={visit} onCheckIn={() => handleCheckIn(visit.id)} onSelect={() => handleSelect(visit.id)} />
-              ))}
-            </AnimatePresence>
-          </Reorder.Group>
+        {/* Solo las tarjetas hacen scroll (sobre una capa base) */}
+        <div className="flex-1 min-h-0 relative">
+          <div
+            className="absolute inset-0 rounded-3xl border"
+            style={{
+              borderColor: 'var(--app-border)',
+              background:
+                'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 78%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
+            }}
+          />
+          <div className="relative z-10 h-full overflow-y-auto no-scrollbar min-h-0 px-1">
+            <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
+              <AnimatePresence>
+                {visits.map((visit) => (
+                  <VisitCardWrapper
+                    key={visit.id}
+                    visit={visit}
+                    onCheckIn={() => handleCheckIn(visit.id)}
+                    onSelect={() => handleSelect(visit.id)}
+                  />
+                ))}
+              </AnimatePresence>
+            </Reorder.Group>
+          </div>
         </div>
       </div>
     </div>

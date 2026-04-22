@@ -268,15 +268,34 @@ function Dashboard() {
   ];
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden relative">
-      <div className="flex-1 overflow-y-auto custom-scrollbar">
-        <div className="p-6 pt-4 space-y-5">
-          <h2 className="text-2xl font-black italic tracking-tight text-white uppercase leading-none">
+    <div className="flex-1 flex flex-col h-full overflow-hidden p-6 pt-2 space-y-6 relative z-10 transition-all duration-500">
+      <div className="shrink-0 flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-black text-white italic tracking-tighter uppercase mb-1 font-display">
             Panel General
           </h2>
+          <p className="text-slate-400 font-medium border-l-2 border-indigo-500/30 pl-4 py-1">
+            Vista consolidada de operación, ventas y alertas.
+          </p>
+        </div>
+        <div className="flex gap-4">
+          <Link
+            to="/admin/pos"
+            className="bg-white/5 border border-white/5 text-slate-300 px-5 py-2.5 rounded-xl font-bold uppercase text-xs tracking-widest hover:bg-white/10 transition-all flex items-center gap-2 backdrop-blur-md"
+          >
+            <Zap size={18} className="text-emerald-400" />
+            <span>Punto de Venta</span>
+          </Link>
+          <Link to="/admin/orders" className="btn-glass">
+            <ShoppingCart size={18} />
+            <span>Ver Pedidos</span>
+          </Link>
+        </div>
+      </div>
 
+      <div className="flex-1 overflow-y-auto space-y-6 pr-1 custom-scrollbar">
           {/* KPI Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
             <KPIItem
               title="Ventas Totales"
               value={formatPrice(124500)}
@@ -486,7 +505,6 @@ function Dashboard() {
               </div>
             </div>
           </div>
-        </div>
       </div>
     </div>
   );

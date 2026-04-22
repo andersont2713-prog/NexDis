@@ -252,61 +252,157 @@ export default function NewOrderPage() {
         </div>
       )}
 
-      {/* Step 2: Catalog Selection */}
+      {/* Step 2: Catálogo (misma modalidad que los demás módulos) */}
       {step === 2 && (
-        <div className="flex-1 overflow-y-auto p-4 flex flex-col relative z-10 pb-32">
-          <div className="space-y-4 mb-6">
-             <div className="relative">
-               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
-               <input 
-                 type="text" 
-                 placeholder="Nombre o SKU..." 
-                 className="input-glass pl-10 h-12"
-                 value={productSearch}
-                 onChange={(e) => setProductSearch(e.target.value)}
-               />
-             </div>
-             <div className="flex gap-2 p-2 bg-white/5 border border-white/5 rounded-2xl overflow-x-auto shrink-0 no-scrollbar backdrop-blur-md">
-                {['Todos', 'Lácteos', 'Abarrotes', 'Limpieza', 'Bebidas'].map(cat => (
-                  <button 
-                    key={cat} 
-                    onClick={() => setSelectedCategory(cat)}
-                    className={cn("px-5 py-2 rounded-xl text-[10px] font-black uppercase italic tracking-widest transition-all", selectedCategory === cat ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/20" : "bg-transparent text-slate-500 hover:text-slate-300")}
-                  >
-                    {cat}
-                  </button>
-                ))}
-             </div>
-          </div>
+        <div className="flex-1 flex flex-col min-h-0 relative z-10 overflow-hidden">
+          <div className="flex-1 overflow-hidden flex flex-col min-h-0 relative">
+            {/* Capa base estática */}
+            <div
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{
+                background:
+                  'linear-gradient(180deg, color-mix(in srgb, var(--app-bg) 70%, transparent) 0%, color-mix(in srgb, var(--app-bg) 92%, transparent) 100%)',
+              }}
+            />
 
-          <div className="grid grid-cols-2 gap-4">
-             {products
-               .filter(p => {
-                 const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase());
-                 const matchesCategory = selectedCategory === 'Todos' || p.warehouse === selectedCategory;
-                 return matchesSearch && matchesCategory;
-               })
-               .map(p => (
-               <div key={p.id} className="frosted-card group hover:border-indigo-500/50 transition-all active:scale-[0.98]">
-                  <div className="aspect-square bg-slate-800 rounded-xl mb-4 overflow-hidden border border-white/5 relative">
-                     <img src={`https://picsum.photos/seed/${p.sku}/200/200`} alt="p" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
-                         <span className="text-[10px] font-black text-white italic uppercase tracking-widest">Stock: {p.stock}</span>
+            {/* Cabecera principal */}
+            <div
+              className="shrink-0 relative z-20 border-b backdrop-blur-2xl overflow-hidden sticky top-0"
+              style={{
+                borderColor: 'color-mix(in srgb, rgb(99 102 241) 45%, transparent)',
+                background:
+                  'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 22%, var(--app-bg)) 100%)',
+                boxShadow:
+                  '0 30px 80px -45px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
+              }}
+            >
+              <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
+              <div className="absolute -right-12 -bottom-12 w-44 h-44 rounded-full blur-[60px] opacity-20 bg-emerald-500" />
+
+              <div className="px-4 py-2.5 relative">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex items-center gap-2">
+                    <button
+                      onClick={() => setStep(1)}
+                      className="p-1.5 rounded-lg border text-slate-300 hover:text-white transition-all active:scale-95"
+                      style={{
+                        borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                        background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
+                      }}
+                      title="Volver"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <h2 className="text-base font-black italic tracking-tight text-white uppercase leading-none">
+                      Agregar Productos
+                    </h2>
+                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-300/70">
+                      {products.filter(p => {
+                        const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase());
+                        const matchesCategory = selectedCategory === 'Todos' || p.warehouse === selectedCategory;
+                        return matchesSearch && matchesCategory;
+                      }).length}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <button
+                      type="button"
+                      className="px-2.5 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-1.5"
+                      style={{
+                        borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                        background: 'color-mix(in srgb, rgb(99 102 241 / 0.25) 70%, transparent)',
+                        color: 'var(--app-fg)',
+                      }}
+                      title="Carrito"
+                      onClick={() => cart.length > 0 && setStep(3)}
+                    >
+                      <ShoppingCart size={14} className="text-indigo-300" />
+                      {cart.length}
+                    </button>
+                    <button
+                      type="button"
+                      className="px-2.5 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                      style={{
+                        borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                        background: 'color-mix(in srgb, var(--app-card) 40%, transparent)',
+                        color: 'var(--app-fg)',
+                      }}
+                      title="Filtros"
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        <Filter size={14} className="text-emerald-400" />
+                        Filtros
+                      </span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-2 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
+                  <input
+                    type="text"
+                    placeholder="Buscar nombre o SKU…"
+                    className="input-glass pl-9 !py-1.5 text-sm"
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                  />
+                </div>
+
+                {/* Categorías (dentro de la cabecera para que queden fijas) */}
+                <div className="mt-2 flex gap-1.5 overflow-x-auto no-scrollbar">
+                  {['Todos', 'Lácteos', 'Abarrotes', 'Limpieza', 'Bebidas'].map(cat => (
+                    <button
+                      key={cat}
+                      onClick={() => setSelectedCategory(cat)}
+                      className={cn(
+                        "px-3 py-1 rounded-xl text-[9px] font-black uppercase italic tracking-widest transition-all shrink-0 border",
+                        selectedCategory === cat
+                          ? "bg-indigo-600 text-white border-indigo-400/50 shadow-lg shadow-indigo-600/20"
+                          : "bg-white/5 text-slate-300 border-white/10 hover:text-white"
+                      )}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Grid de productos */}
+            <div className="flex-1 min-h-0 relative z-10 pt-4 px-4 flex flex-col overflow-hidden">
+              <DragScrollList>
+                <div className="grid grid-cols-2 gap-4 pb-4">
+                  {products
+                    .filter(p => {
+                      const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) || p.sku.toLowerCase().includes(productSearch.toLowerCase());
+                      const matchesCategory = selectedCategory === 'Todos' || p.warehouse === selectedCategory;
+                      return matchesSearch && matchesCategory;
+                    })
+                    .map(p => (
+                    <div key={p.id} className="frosted-card group hover:border-indigo-500/50 transition-all active:scale-[0.98]">
+                      <div className="aspect-square bg-slate-800 rounded-xl mb-4 overflow-hidden border border-white/5 relative">
+                        <img src={`https://picsum.photos/seed/${p.sku}/200/200`} alt="p" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                          <span className="text-[10px] font-black text-white italic uppercase tracking-widest">Stock: {p.stock}</span>
+                        </div>
                       </div>
-                  </div>
-                  <h4 className="text-sm font-black text-white italic tracking-tight leading-tight uppercase h-10 overflow-hidden line-clamp-2">{p.name}</h4>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase italic tracking-widest mt-1">SKU: {p.sku}</p>
-                  <div className="flex items-center justify-between mt-4">
-                     <p className="text-lg font-black text-white font-mono tracking-tighter uppercase">{formatPrice(p.price || 4.50)}</p>
-                     <button 
-                       onClick={() => addToCart(p)}
-                       className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-xl shadow-indigo-600/20 active:scale-90 transition-all active:rotate-12 border border-white/10 hover:bg-indigo-500"
-                     >
-                       <Plus size={20} className="stroke-[3]" />
-                     </button>
-                  </div>
-               </div>
-             ))}
+                      <h4 className="text-sm font-black text-white italic tracking-tight leading-tight uppercase h-10 overflow-hidden line-clamp-2">{p.name}</h4>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase italic tracking-widest mt-1">SKU: {p.sku}</p>
+                      <div className="flex items-center justify-between mt-4">
+                        <p className="text-lg font-black text-white font-mono tracking-tighter uppercase">{formatPrice(p.price || 4.50)}</p>
+                        <button
+                          onClick={() => addToCart(p)}
+                          className="w-10 h-10 bg-indigo-600 text-white rounded-xl flex items-center justify-center shadow-xl shadow-indigo-600/20 active:scale-90 transition-all active:rotate-12 border border-white/10 hover:bg-indigo-500"
+                        >
+                          <Plus size={20} className="stroke-[3]" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </DragScrollList>
+            </div>
           </div>
         </div>
       )}

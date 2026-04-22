@@ -164,27 +164,6 @@ export default function NewCustomerPage() {
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    type="button"
-                    onClick={() => handleSubmit()}
-                    disabled={loading}
-                    className="px-2.5 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-1.5 disabled:opacity-50"
-                    style={{
-                      borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
-                      background: 'color-mix(in srgb, rgb(99 102 241 / 0.3) 70%, transparent)',
-                      color: 'var(--app-fg)',
-                    }}
-                    title="Guardar"
-                  >
-                    {loading ? (
-                      <RefreshCw size={14} className="animate-spin text-indigo-300" />
-                    ) : (
-                      <Save size={14} className="text-indigo-300" />
-                    )}
-                    Guardar
-                  </button>
-                </div>
               </div>
             </div>
           </div>

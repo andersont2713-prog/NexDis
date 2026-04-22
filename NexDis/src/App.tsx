@@ -653,22 +653,25 @@ function SellerHome() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-6 py-6 pb-32 no-scrollbar">
-        <div className="flex items-center justify-between mb-5">
+      <div className="flex-1 overflow-hidden px-6 py-6 pb-32 flex flex-col min-h-0">
+        <div className="flex items-center justify-between mb-5 shrink-0">
           <h3 className="text-xl font-black italic text-white uppercase flex items-center gap-2 tracking-tight">Ruta de Hoy</h3>
           <button className="text-indigo-400 text-xs font-bold uppercase tracking-widest border border-indigo-400/20 px-3 py-1.5 rounded-full flex items-center gap-1.5 bg-indigo-400/5">
             <MapIcon size={14} />
             Ruta Mapa
           </button>
         </div>
-        
-        <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
-          <AnimatePresence>
-            {visits.map((visit) => (
-              <VisitCardWrapper key={visit.id} visit={visit} onCheckIn={() => handleCheckIn(visit.id)} onSelect={() => handleSelect(visit.id)} />
-            ))}
-          </AnimatePresence>
-        </Reorder.Group>
+
+        {/* Solo las tarjetas hacen scroll */}
+        <div className="flex-1 overflow-y-auto no-scrollbar min-h-0">
+          <Reorder.Group axis="y" values={visits} onReorder={setVisits} className="space-y-4">
+            <AnimatePresence>
+              {visits.map((visit) => (
+                <VisitCardWrapper key={visit.id} visit={visit} onCheckIn={() => handleCheckIn(visit.id)} onSelect={() => handleSelect(visit.id)} />
+              ))}
+            </AnimatePresence>
+          </Reorder.Group>
+        </div>
       </div>
     </div>
   );

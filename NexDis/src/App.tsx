@@ -39,6 +39,7 @@ import { motion, AnimatePresence, Reorder, useDragControls } from 'motion/react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useRegional } from './context/RegionalContext.tsx';
 import { useTheme } from './context/ThemeContext.tsx';
+import { useRealtime } from './lib/realtime';
 import { cn } from './lib/utils';
 import type { Product, Customer, Order, User } from './types';
 
@@ -606,23 +607,83 @@ function SidebarNavLink({ to, icon, label, active = false, onClick, className }:
 
 function SellerHome() {
   const navigate = useNavigate();
-  const [visits, setVisits] = useState([
-    { id: '1', name: "Bodega El Sol", address: "Av. Las Camelias 450", status: "current" as const, time: "08:30 AM" },
-    { id: '2', name: "Minimarket Lily", address: "Calle Los Pinos 102", status: "pending" as const, time: "10:15 AM" },
-    { id: '3', name: "Mercado Central #24", address: "Jr. Huallaga 455", status: "pending" as const, time: "11:30 AM" },
-    { id: '4', name: "Tienda Don Jhon", address: "Prol. Gamarra 882", status: "pending" as const, time: "02:00 PM" },
-    { id: '5', name: "Distribuidora San Martín", address: "Av. Benavides 1200", status: "pending" as const, time: "03:10 PM" },
-    { id: '6', name: "Abarrotes La Esquina", address: "Jr. Lima 330", status: "pending" as const, time: "03:45 PM" },
-    { id: '7', name: "Kiosko Central", address: "Psje. Grau 88", status: "pending" as const, time: "04:20 PM" },
-    { id: '8', name: "Market Express", address: "Av. Arequipa 2150", status: "pending" as const, time: "04:55 PM" },
-    { id: '9', name: "Tienda El Progreso", address: "Calle Las Flores 701", status: "pending" as const, time: "05:20 PM" },
-    { id: '10', name: "Bodega Doña Rosa", address: "Av. Los Próceres 145", status: "pending" as const, time: "05:45 PM" },
-    { id: '11', name: "Minimarket Norte", address: "Av. Túpac Amaru 980", status: "pending" as const, time: "06:10 PM" },
-    { id: '12', name: "Comercial Andes", address: "Jr. Puno 410", status: "pending" as const, time: "06:35 PM" },
-    { id: '13', name: "Tienda La Familia", address: "Calle Unión 56", status: "pending" as const, time: "07:00 PM" },
-    { id: '14', name: "Bodega El Rápido", address: "Av. Colonial 775", status: "pending" as const, time: "07:25 PM" },
-    { id: '15', name: "Market Sur", address: "Av. Pachacútec 1620", status: "pending" as const, time: "07:50 PM" },
+  type Visit = {
+    id: string;
+    name: string;
+    address: string;
+    status: 'visited' | 'current' | 'pending';
+    time: string;
+    photo?: string | null;
+  };
+
+  const [visits, setVisits] = useState<Visit[]>([
+    { id: '1', name: "Bodega El Sol", address: "Av. Las Camelias 450", status: "current", time: "08:30 AM" },
+    { id: '2', name: "Minimarket Lily", address: "Calle Los Pinos 102", status: "pending", time: "10:15 AM" },
+    { id: '3', name: "Mercado Central #24", address: "Jr. Huallaga 455", status: "pending", time: "11:30 AM" },
+    { id: '4', name: "Tienda Don Jhon", address: "Prol. Gamarra 882", status: "pending", time: "02:00 PM" },
+    { id: '5', name: "Distribuidora San Martín", address: "Av. Benavides 1200", status: "pending", time: "03:10 PM" },
+    { id: '6', name: "Abarrotes La Esquina", address: "Jr. Lima 330", status: "pending", time: "03:45 PM" },
+    { id: '7', name: "Kiosko Central", address: "Psje. Grau 88", status: "pending", time: "04:20 PM" },
+    { id: '8', name: "Market Express", address: "Av. Arequipa 2150", status: "pending", time: "04:55 PM" },
+    { id: '9', name: "Tienda El Progreso", address: "Calle Las Flores 701", status: "pending", time: "05:20 PM" },
+    { id: '10', name: "Bodega Doña Rosa", address: "Av. Los Próceres 145", status: "pending", time: "05:45 PM" },
+    { id: '11', name: "Minimarket Norte", address: "Av. Túpac Amaru 980", status: "pending", time: "06:10 PM" },
+    { id: '12', name: "Comercial Andes", address: "Jr. Puno 410", status: "pending", time: "06:35 PM" },
+    { id: '13', name: "Tienda La Familia", address: "Calle Unión 56", status: "pending", time: "07:00 PM" },
+    { id: '14', name: "Bodega El Rápido", address: "Av. Colonial 775", status: "pending", time: "07:25 PM" },
+    { id: '15', name: "Market Sur", address: "Av. Pachacútec 1620", status: "pending", time: "07:50 PM" },
   ]);
+
+  const mergeCustomers = (list: any[]) => {
+    if (!Array.isArray(list) || list.length === 0) return;
+    setVisits(prev => {
+      const byName = new Map(prev.map(v => [v.name.trim().toLowerCase(), v]));
+      const byId = new Map(prev.map(v => [v.id, v]));
+      const next: Visit[] = prev.map(v => ({ ...v }));
+
+      list.forEach((c: any) => {
+        const photo = c?.photo ?? null;
+        const key = (c?.name ?? '').trim().toLowerCase();
+        const match =
+          (c?.id && byId.get(c.id)) ||
+          (key && byName.get(key));
+
+        if (match) {
+          if (photo) {
+            const idx = next.findIndex(v => v.id === match.id);
+            if (idx >= 0) next[idx] = { ...next[idx], photo };
+          }
+          return;
+        }
+
+        next.push({
+          id: c?.id ?? `CUST-${Math.random().toString(36).slice(2, 8)}`,
+          name: c?.name ?? 'Cliente',
+          address: c?.address ?? 'Sin dirección',
+          status: 'pending',
+          time: '—',
+          photo,
+        });
+      });
+
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    fetch('/api/customers')
+      .then(r => r.json())
+      .then(mergeCustomers)
+      .catch(() => {});
+  }, []);
+
+  useRealtime({
+    onEvent: (type, data) => {
+      if (type === 'customers:created' && data) {
+        mergeCustomers([data]);
+      }
+    },
+  });
 
   const handleSelect = (id: string) => {
     setVisits(prev => prev.map(v => {
@@ -847,6 +908,7 @@ function VisitCardWrapper({ visit, onCheckIn, onSelect }: { visit: any, key?: st
         status={visit.status} 
         time={visit.time}
         orderValue={visit.orderValue}
+        photo={visit.photo}
         isDraggable={isDraggable}
         onCheckIn={onCheckIn}
         onSelect={onSelect}
@@ -855,7 +917,7 @@ function VisitCardWrapper({ visit, onCheckIn, onSelect }: { visit: any, key?: st
   );
 }
 
-function VisitCard({ name, address, status, time, orderValue, isDraggable, onCheckIn, onSelect }: { name: string, address: string, status: 'visited' | 'current' | 'pending', time: string, orderValue?: number, isDraggable?: boolean, onCheckIn: () => void, onSelect: () => void }) {
+function VisitCard({ name, address, status, time, orderValue, photo, isDraggable, onCheckIn, onSelect }: { name: string, address: string, status: 'visited' | 'current' | 'pending', time: string, orderValue?: number, photo?: string | null, isDraggable?: boolean, onCheckIn: () => void, onSelect: () => void }) {
   const handleCall = (e: React.MouseEvent) => { e.stopPropagation(); window.location.href = 'tel:+51900000000'; };
   const handleWhatsApp = (e: React.MouseEvent) => { e.stopPropagation(); window.location.href = 'https://wa.me/51900000000'; };
   const handleNavigation = (e: React.MouseEvent) => { e.stopPropagation(); window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`, '_blank'); };
@@ -883,19 +945,41 @@ function VisitCard({ name, address, status, time, orderValue, isDraggable, onChe
          <GripVertical size={20} />
       </div>
       
-      <div className="flex items-start justify-between relative z-10 mr-4">
-        <div className="flex-1">
+      <div className="flex items-start justify-between gap-3 relative z-10 mr-4">
+        <div
+          className={cn(
+            "w-12 h-12 shrink-0 rounded-xl overflow-hidden border flex items-center justify-center bg-slate-800",
+            status === 'current'
+              ? 'border-emerald-500/40'
+              : 'border-white/10'
+          )}
+        >
+          {photo ? (
+            <img
+              src={photo}
+              alt={name}
+              className="w-full h-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <span className="text-[10px] font-black italic uppercase tracking-widest text-slate-400">
+              {name.substring(0, 2).toUpperCase()}
+            </span>
+          )}
+        </div>
+
+        <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5">
-            <h4 className="font-black text-white italic tracking-tight">{name}</h4>
-            {status === 'visited' && <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center"><Plus size={10} className="text-black rotate-45 stroke-[3]" /></div>}
-            {status === 'current' && <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>}
+            <h4 className="font-black text-white italic tracking-tight truncate">{name}</h4>
+            {status === 'visited' && <div className="w-4 h-4 bg-emerald-500 rounded-full flex items-center justify-center shrink-0"><Plus size={10} className="text-black rotate-45 stroke-[3]" /></div>}
+            {status === 'current' && <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>}
           </div>
-          <p className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1.5 tracking-tighter">
-            <MapPin size={12} className="text-indigo-400" />
-            {address}
+          <p className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1.5 tracking-tighter truncate">
+            <MapPin size={12} className="text-indigo-400 shrink-0" />
+            <span className="truncate">{address}</span>
           </p>
         </div>
-        <span className="text-[10px] font-black text-slate-500 font-mono italic">{time}</span>
+        <span className="text-[10px] font-black text-slate-500 font-mono italic shrink-0">{time}</span>
       </div>
 
       {/* Quick Actions */}

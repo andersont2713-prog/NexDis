@@ -242,58 +242,297 @@ function NavLink({ to, icon, label, isCollapsed }: { to: string, icon: React.Rea
 
 function Dashboard() {
   const { formatPrice } = useRegional();
-  return (
-    <div className="flex-1 flex flex-col p-6 pt-4 space-y-4">
-      <div className="space-y-4 pr-1">
-        {/* KPI Grid */}
-        <div className="grid grid-cols-4 gap-4">
-          <KPIItem title="Ventas Totales" value={formatPrice(124500)} trend="+12.5%" icon={<TrendingUp className="text-indigo-400" />} />
-          <KPIItem title="Pedidos Hoy" value="42" trend="+3" icon={<ShoppingCart className="text-emerald-400" />} />
-          <KPIItem title="Bajo Stock" value="12" trend="Crítico" icon={<Package className="text-orange-400" />} />
-          <KPIItem title="Nuevos Clientes" value="8" trend="+2" icon={<Users className="text-indigo-400" />} />
-        </div>
 
-        {/* Main Charts */}
-        <div className="grid grid-cols-3 gap-4">
-          <div className="col-span-2 frosted-card h-[520px]">
-            <h3 className="text-lg font-bold mb-6 text-white flex items-center justify-between">
-              Ventas Semanales
-              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest italic">Global</span>
-            </h3>
-            <ResponsiveContainer width="100%" height="85%">
-              <AreaChart data={MOCK_STATS}>
-                <defs>
-                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fontSize: 10, fill: '#64748b'}} />
-                <Tooltip 
-                  contentStyle={{ backgroundColor: '#1e293b', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', color: '#f1f5f9' }}
-                />
-                <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
-              </AreaChart>
-            </ResponsiveContainer>
+  const today = new Date().toLocaleDateString('es-ES', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+  });
+
+  const RECENT_ORDERS = [
+    { id: 'ORD-2041', customer: 'Bodega El Sol', total: 1240, status: 'delivered', seller: 'Anderson' },
+    { id: 'ORD-2040', customer: 'Minimarket Lily', total: 820, status: 'shipped', seller: 'Anderson' },
+    { id: 'ORD-2039', customer: 'Mercado Central #24', total: 2150, status: 'processed', seller: 'Karla' },
+    { id: 'ORD-2038', customer: 'Tienda Don Jhon', total: 540, status: 'pending', seller: 'Luis' },
+    { id: 'ORD-2037', customer: 'Distribuidora San Martín', total: 3280, status: 'delivered', seller: 'Karla' },
+  ] as const;
+
+  const TOP_SELLERS = [
+    { name: 'Karla Ríos', zone: 'Norte', sales: 24800, orders: 18 },
+    { name: 'Anderson T.', zone: 'Centro', sales: 19650, orders: 15 },
+    { name: 'Luis Vega', zone: 'Sur', sales: 14210, orders: 11 },
+  ];
+
+  return (
+    <div className="flex-1 flex flex-col overflow-hidden relative">
+      <div className="flex-1 overflow-y-auto custom-scrollbar">
+        <div className="p-6 pt-4 space-y-5">
+          {/* Hero header */}
+          <div
+            className="relative rounded-3xl border overflow-hidden"
+            style={{
+              borderColor: 'color-mix(in srgb, rgb(99 102 241) 40%, transparent)',
+              background:
+                'linear-gradient(135deg, color-mix(in srgb, rgb(99 102 241) 28%, var(--app-bg)) 0%, color-mix(in srgb, rgb(34 211 238) 20%, var(--app-bg)) 100%)',
+              boxShadow:
+                '0 40px 80px -50px rgba(99,102,241,0.55), inset 0 1px 0 rgba(255,255,255,0.06)',
+            }}
+          >
+            <div className="absolute -left-10 -top-10 w-48 h-48 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
+            <div className="absolute -right-16 -bottom-16 w-60 h-60 rounded-full blur-[70px] opacity-20 bg-emerald-500" />
+
+            <div className="relative p-6 flex items-center justify-between gap-6">
+              <div className="min-w-0">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] italic text-slate-300/80">
+                  Backoffice · {today}
+                </p>
+                <h2 className="text-3xl font-black italic tracking-tight text-white uppercase leading-none mt-1">
+                  Panel General
+                </h2>
+                <p className="text-slate-300/80 text-[11px] font-bold uppercase tracking-widest mt-2">
+                  Buen día, Administrador — tu operación se ve saludable hoy.
+                </p>
+              </div>
+
+              <div className="hidden md:flex items-center gap-3 shrink-0">
+                <Link
+                  to="/admin/orders"
+                  className="px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-2"
+                  style={{
+                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                    background: 'color-mix(in srgb, rgb(99 102 241 / 0.25) 70%, transparent)',
+                    color: 'var(--app-fg)',
+                  }}
+                >
+                  <ShoppingCart size={14} className="text-indigo-300" />
+                  Ver Pedidos
+                </Link>
+                <Link
+                  to="/admin/pos"
+                  className="px-4 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95 inline-flex items-center gap-2"
+                  style={{
+                    borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
+                    background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
+                    color: 'var(--app-fg)',
+                  }}
+                >
+                  <Zap size={14} className="text-emerald-300" />
+                  Punto de Venta
+                </Link>
+              </div>
+            </div>
           </div>
-          
-          <div className="frosted-card h-[520px] flex flex-col min-h-0">
-            <h3 className="text-lg font-bold mb-6 text-white uppercase italic tracking-tight">Alertas de Stock</h3>
-            <div className="space-y-4 flex-1 min-h-0 max-h-[420px] overflow-y-auto pr-1 custom-scrollbar">
-              <StockAlertItem name="Aceite Girasol" stock={5} unit="und" status="Critico" />
-              <StockAlertItem name="Arroz Premium" stock={140} unit="kg" status="Alerta" />
-              <StockAlertItem name="Leche Entera" stock={2} unit="und" status="Critico" />
-              <StockAlertItem name="Harina Trigo" stock={85} unit="kg" status="Alerta" />
-              <StockAlertItem name="Azúcar Rubia 1kg" stock={18} unit="und" status="Alerta" />
-              <StockAlertItem name="Fideos Spaghetti 500g" stock={6} unit="und" status="Critico" />
-              <StockAlertItem name="Atún en lata 170g" stock={22} unit="und" status="Alerta" />
-              <StockAlertItem name="Papel higiénico pack x4" stock={3} unit="pack" status="Critico" />
-              <StockAlertItem name="Detergente 1L" stock={14} unit="und" status="Alerta" />
-              <StockAlertItem name="Gaseosa 3L" stock={4} unit="und" status="Critico" />
-              <StockAlertItem name="Café 200g" stock={25} unit="und" status="Alerta" />
-              <StockAlertItem name="Galletas surtidas" stock={7} unit="und" status="Critico" />
+
+          {/* KPI Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <KPIItem
+              title="Ventas Totales"
+              value={formatPrice(124500)}
+              trend="+12.5%"
+              icon={<TrendingUp size={18} />}
+              accent="indigo"
+            />
+            <KPIItem
+              title="Pedidos Hoy"
+              value="42"
+              trend="+3"
+              icon={<ShoppingCart size={18} />}
+              accent="emerald"
+            />
+            <KPIItem
+              title="Bajo Stock"
+              value="12"
+              trend="Crítico"
+              icon={<Package size={18} />}
+              accent="orange"
+            />
+            <KPIItem
+              title="Nuevos Clientes"
+              value="8"
+              trend="+2"
+              icon={<Users size={18} />}
+              accent="cyan"
+            />
+          </div>
+
+          {/* Main Charts + Stock */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 frosted-card h-[480px] flex flex-col">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                    Global · Últimos 7 días
+                  </p>
+                  <h3 className="text-lg font-black italic tracking-tight text-white uppercase mt-0.5">
+                    Ventas Semanales
+                  </h3>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-full uppercase tracking-widest italic inline-flex items-center gap-1">
+                    <ArrowUpRight size={12} />
+                    +12.5%
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex-1 min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={MOCK_STATS}>
+                    <defs>
+                      <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} dy={10} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#64748b' }} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: '#0f172a',
+                        borderRadius: '12px',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                        color: '#f1f5f9',
+                        boxShadow: '0 20px 40px -20px rgba(0,0,0,0.6)',
+                      }}
+                      labelStyle={{ color: '#94a3b8', fontSize: 10, textTransform: 'uppercase', letterSpacing: 1 }}
+                    />
+                    <Area type="monotone" dataKey="sales" stroke="#6366f1" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="frosted-card h-[480px] flex flex-col min-h-0">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                    Inventario
+                  </p>
+                  <h3 className="text-lg font-black italic tracking-tight text-white uppercase mt-0.5">
+                    Alertas de Stock
+                  </h3>
+                </div>
+                <Link
+                  to="/admin/inventory"
+                  className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest italic inline-flex items-center gap-1"
+                >
+                  Ver todo
+                  <ChevronRight size={12} />
+                </Link>
+              </div>
+              <div className="space-y-2.5 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
+                <StockAlertItem name="Aceite Girasol" stock={5} unit="und" status="Critico" />
+                <StockAlertItem name="Arroz Premium" stock={140} unit="kg" status="Alerta" />
+                <StockAlertItem name="Leche Entera" stock={2} unit="und" status="Critico" />
+                <StockAlertItem name="Harina Trigo" stock={85} unit="kg" status="Alerta" />
+                <StockAlertItem name="Azúcar Rubia 1kg" stock={18} unit="und" status="Alerta" />
+                <StockAlertItem name="Fideos Spaghetti 500g" stock={6} unit="und" status="Critico" />
+                <StockAlertItem name="Atún en lata 170g" stock={22} unit="und" status="Alerta" />
+                <StockAlertItem name="Papel higiénico pack x4" stock={3} unit="pack" status="Critico" />
+                <StockAlertItem name="Detergente 1L" stock={14} unit="und" status="Alerta" />
+                <StockAlertItem name="Gaseosa 3L" stock={4} unit="und" status="Critico" />
+                <StockAlertItem name="Café 200g" stock={25} unit="und" status="Alerta" />
+                <StockAlertItem name="Galletas surtidas" stock={7} unit="und" status="Critico" />
+              </div>
+            </div>
+          </div>
+
+          {/* Recent orders + Top sellers */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="lg:col-span-2 frosted-card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                    Operación · Tiempo real
+                  </p>
+                  <h3 className="text-lg font-black italic tracking-tight text-white uppercase mt-0.5">
+                    Pedidos Recientes
+                  </h3>
+                </div>
+                <Link
+                  to="/admin/orders"
+                  className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest italic inline-flex items-center gap-1"
+                >
+                  Gestionar
+                  <ChevronRight size={12} />
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {RECENT_ORDERS.map((o) => (
+                  <OrderRow
+                    key={o.id}
+                    id={o.id}
+                    customer={o.customer}
+                    total={formatPrice(o.total)}
+                    status={o.status}
+                    seller={o.seller}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="frosted-card">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
+                    Field Ops
+                  </p>
+                  <h3 className="text-lg font-black italic tracking-tight text-white uppercase mt-0.5">
+                    Top Vendedores
+                  </h3>
+                </div>
+                <Link
+                  to="/admin/users"
+                  className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest italic inline-flex items-center gap-1"
+                >
+                  Todos
+                  <ChevronRight size={12} />
+                </Link>
+              </div>
+
+              <div className="space-y-3">
+                {TOP_SELLERS.map((s, i) => (
+                  <div
+                    key={s.name}
+                    className="flex items-center gap-3 p-3 rounded-2xl border"
+                    style={{
+                      borderColor: 'color-mix(in srgb, var(--app-border) 70%, transparent)',
+                      background: 'color-mix(in srgb, var(--app-card) 45%, transparent)',
+                    }}
+                  >
+                    <div
+                      className={cn(
+                        'w-10 h-10 rounded-xl flex items-center justify-center font-black italic text-sm shrink-0',
+                        i === 0
+                          ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                          : i === 1
+                            ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                            : 'bg-slate-500/10 text-slate-300 border border-slate-500/20'
+                      )}
+                    >
+                      {i + 1}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black italic tracking-tight text-white truncate">{s.name}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 italic">
+                        Zona {s.zone} · {s.orders} pedidos
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-black text-white font-mono tracking-tight">
+                        {formatPrice(s.sales)}
+                      </p>
+                      <p className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest italic inline-flex items-center gap-1 justify-end">
+                        <ArrowUpRight size={10} />
+                        Activo
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -302,38 +541,203 @@ function Dashboard() {
   );
 }
 
-function KPIItem({ title, value, trend, icon }: { title: string, value: string, trend: string, icon: React.ReactNode }) {
+function KPIItem({
+  title,
+  value,
+  trend,
+  icon,
+  accent = 'indigo',
+}: {
+  title: string;
+  value: string;
+  trend: string;
+  icon: React.ReactNode;
+  accent?: 'indigo' | 'emerald' | 'orange' | 'cyan';
+}) {
+  const accents: Record<string, { iconBg: string; glow: string; text: string; border: string }> = {
+    indigo: {
+      iconBg: 'bg-indigo-500/15',
+      glow: 'rgba(99,102,241,0.35)',
+      text: 'text-indigo-300',
+      border: 'border-indigo-500/25',
+    },
+    emerald: {
+      iconBg: 'bg-emerald-500/15',
+      glow: 'rgba(16,185,129,0.35)',
+      text: 'text-emerald-300',
+      border: 'border-emerald-500/25',
+    },
+    orange: {
+      iconBg: 'bg-orange-500/15',
+      glow: 'rgba(249,115,22,0.35)',
+      text: 'text-orange-300',
+      border: 'border-orange-500/25',
+    },
+    cyan: {
+      iconBg: 'bg-cyan-500/15',
+      glow: 'rgba(34,211,238,0.35)',
+      text: 'text-cyan-300',
+      border: 'border-cyan-500/25',
+    },
+  };
+  const a = accents[accent];
+
+  const isPositive = trend.startsWith('+');
+  const isCritical = /cr[ií]tico/i.test(trend);
+
   return (
-    <div className="frosted-card !p-4 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 rounded-full -mr-12 -mt-12 group-hover:scale-110 transition-transform"></div>
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-2xl border p-4 transition-all group',
+        a.border
+      )}
+      style={{
+        background:
+          'linear-gradient(135deg, color-mix(in srgb, var(--app-card) 75%, transparent) 0%, color-mix(in srgb, var(--app-card) 50%, transparent) 100%)',
+        boxShadow: `0 25px 50px -30px ${a.glow}`,
+      }}
+    >
+      <div
+        className="absolute -top-14 -right-14 w-32 h-32 rounded-full blur-3xl opacity-60"
+        style={{ background: a.glow }}
+      />
+
       <div className="flex items-center justify-between mb-3 relative z-10">
-        <div className="p-1.5 bg-white/5 border border-white/10 rounded-lg">{icon}</div>
-        <span className={cn(
-          "text-[10px] font-bold px-2 py-0.5 rounded-full uppercase italic tracking-widest",
-          trend.startsWith('+') ? "bg-emerald-500/10 text-emerald-400" : "bg-orange-500/10 text-orange-400"
-        )}>
+        <div className={cn('p-2 rounded-xl border', a.iconBg, a.border)}>
+          <span className={a.text}>{icon}</span>
+        </div>
+        <span
+          className={cn(
+            'text-[9px] font-black px-2 py-1 rounded-full uppercase italic tracking-widest border',
+            isCritical
+              ? 'bg-rose-500/10 text-rose-300 border-rose-500/20'
+              : isPositive
+                ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20'
+                : 'bg-slate-500/10 text-slate-300 border-slate-500/20'
+          )}
+        >
           {trend}
         </span>
       </div>
-      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest relative z-10 italic">{title}</p>
-      <p className="text-2xl font-black mt-0.5 text-white font-mono relative z-10 tracking-tighter">{value}</p>
+      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest relative z-10 italic">
+        {title}
+      </p>
+      <p className="text-2xl font-black mt-0.5 text-white font-mono relative z-10 tracking-tighter">
+        {value}
+      </p>
     </div>
   );
 }
 
-function StockAlertItem({ name, stock, unit, status }: { name: string, stock: number, unit: string, status: 'Critico' | 'Alerta' }) {
+function StockAlertItem({
+  name,
+  stock,
+  unit,
+  status,
+}: {
+  name: string;
+  stock: number;
+  unit: string;
+  status: 'Critico' | 'Alerta';
+}) {
+  const isCritical = status === 'Critico';
   return (
-    <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/5">
-      <div>
-        <p className="text-sm font-bold text-slate-200">{name}</p>
-        <p className="text-[10px] text-slate-500 font-mono italic">{stock} {unit} restantes</p>
+    <div
+      className={cn(
+        'flex items-center justify-between p-3 rounded-xl border transition-all hover:translate-x-1',
+        isCritical
+          ? 'bg-rose-500/5 border-rose-500/15'
+          : 'bg-orange-500/5 border-orange-500/15'
+      )}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div
+          className={cn(
+            'w-9 h-9 rounded-xl border flex items-center justify-center shrink-0',
+            isCritical
+              ? 'bg-rose-500/15 border-rose-500/30 text-rose-300'
+              : 'bg-orange-500/15 border-orange-500/30 text-orange-300'
+          )}
+        >
+          <Package size={16} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-bold text-slate-100 truncate">{name}</p>
+          <p className="text-[10px] text-slate-500 font-mono italic">
+            {stock} {unit} restantes
+          </p>
+        </div>
       </div>
-      <span className={cn(
-        "text-[10px] uppercase font-black px-2 py-1 rounded italic tracking-tighter",
-        status === 'Critico' ? "bg-rose-500/20 text-rose-400" : "bg-orange-500/20 text-orange-400"
-      )}>
+      <span
+        className={cn(
+          'text-[9px] uppercase font-black px-2 py-1 rounded-lg italic tracking-widest border shrink-0',
+          isCritical
+            ? 'bg-rose-500/15 text-rose-300 border-rose-500/25'
+            : 'bg-orange-500/15 text-orange-300 border-orange-500/25'
+        )}
+      >
         {status}
       </span>
+    </div>
+  );
+}
+
+function OrderRow({
+  id,
+  customer,
+  total,
+  status,
+  seller,
+}: {
+  id: string;
+  customer: string;
+  total: string;
+  status: 'pending' | 'processed' | 'shipped' | 'delivered' | 'cancelled';
+  seller: string;
+}) {
+  const meta: Record<typeof status, { label: string; cls: string }> = {
+    pending: { label: 'Pendiente', cls: 'bg-amber-500/10 text-amber-300 border-amber-500/25' },
+    processed: { label: 'Procesado', cls: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/25' },
+    shipped: { label: 'En ruta', cls: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/25' },
+    delivered: { label: 'Entregado', cls: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/25' },
+    cancelled: { label: 'Cancelado', cls: 'bg-rose-500/10 text-rose-300 border-rose-500/25' },
+  } as any;
+
+  const m = meta[status];
+
+  return (
+    <div
+      className="flex items-center justify-between p-3 rounded-xl border transition-all hover:translate-x-1"
+      style={{
+        borderColor: 'color-mix(in srgb, var(--app-border) 75%, transparent)',
+        background: 'color-mix(in srgb, var(--app-card) 45%, transparent)',
+      }}
+    >
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-9 h-9 rounded-xl bg-indigo-500/15 border border-indigo-500/25 text-indigo-300 flex items-center justify-center shrink-0">
+          <ShoppingCart size={16} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-sm font-black italic tracking-tight text-white truncate">
+            {customer}
+          </p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 italic">
+            {id} · {seller}
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 shrink-0">
+        <span
+          className={cn(
+            'text-[9px] font-black px-2 py-1 rounded-lg uppercase italic tracking-widest border',
+            m.cls
+          )}
+        >
+          {m.label}
+        </span>
+        <p className="text-sm font-black text-white font-mono tracking-tight">{total}</p>
+      </div>
     </div>
   );
 }

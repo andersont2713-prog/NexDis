@@ -25,11 +25,34 @@ export default function LoginPage() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    const user = formData.email.trim().toLowerCase();
+    const pass = formData.password;
+
     setTimeout(() => {
       setIsLoading(false);
+
+      // Admin
+      if ((user === 'admin' || user === 'admin@nexdist.com') && pass === 'admin') {
+        toast.success('Bienvenido Administrador');
+        navigate('/admin');
+        return;
+      }
+
+      // Vendedor demo
+      if (
+        (user === 'anderson@nexdist.com' || user === 'vendedor' || user === 'seller') &&
+        pass === 'ruta2026'
+      ) {
+        toast.success('Bienvenido a NexDist');
+        navigate('/seller');
+        return;
+      }
+
+      // Cualquier otra combinación: por defecto vendedor (demo)
       toast.success('Bienvenido a NexDist');
       navigate('/seller');
-    }, 1200);
+    }, 900);
   };
 
   return (

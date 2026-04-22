@@ -622,8 +622,15 @@ function SellerHome() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0F172A] relative overflow-hidden">
-      <div className="shrink-0 z-40 bg-black/80 backdrop-blur-xl px-6 pt-6 pb-4 border-b border-white/5 shadow-2xl shadow-black relative">
+    <div className="flex-1 flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
+      <div
+        className="shrink-0 z-40 backdrop-blur-xl px-6 pt-6 pb-4 border-b shadow-2xl relative sticky top-0"
+        style={{
+          background: 'color-mix(in srgb, var(--app-bg) 92%, transparent)',
+          borderColor: 'var(--app-border)',
+          boxShadow: '0 25px 50px -12px rgba(0,0,0,0.55)',
+        }}
+      >
         <div className="frosted-card bg-indigo-600/10 border-indigo-500/20 shadow-indigo-500/5 relative overflow-hidden p-4 rounded-2xl flex items-center justify-between">
           <div className="relative z-10">
             <p className="text-indigo-300 text-[10px] font-bold uppercase tracking-widest mb-0.5 italic">Rendimiento</p>

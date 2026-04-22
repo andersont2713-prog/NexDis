@@ -481,7 +481,8 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
         )}
       </AnimatePresence>
 
-      <div className="flex-1 overflow-y-auto relative z-10 flex flex-col">
+      {/* El contenedor principal NO debe scrollear; cada pantalla maneja su propio scroll */}
+      <div className="flex-1 overflow-hidden relative z-10 flex flex-col min-h-0">
         {children}
       </div>
 

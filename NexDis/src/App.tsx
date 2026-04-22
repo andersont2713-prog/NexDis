@@ -657,16 +657,16 @@ function SellerHome() {
           <div className="absolute -left-10 -top-10 w-40 h-40 rounded-full blur-[60px] opacity-25 bg-indigo-500" />
           <div className="absolute -right-12 -bottom-12 w-44 h-44 rounded-full blur-[60px] opacity-20 bg-emerald-500" />
 
-          <div className="p-5 relative">
+          <div className="p-4 relative">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[10px] font-black uppercase tracking-[0.28em] italic text-slate-500">
                   Field • Gestión diaria
                 </p>
-                <h2 className="text-2xl font-black italic tracking-tight text-white uppercase leading-none mt-1">
+                <h2 className="text-xl font-black italic tracking-tight text-white uppercase leading-none mt-0.5">
                   Ruta de Hoy
                 </h2>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-0.5">
                   {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: '2-digit', month: 'short' })}
                 </p>
               </div>
@@ -674,7 +674,7 @@ function SellerHome() {
               <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
-                  className="px-3 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                  className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
                   style={{
                     borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
                     background: 'color-mix(in srgb, var(--app-card) 55%, transparent)',
@@ -689,7 +689,7 @@ function SellerHome() {
                 </button>
                 <button
                   type="button"
-                  className="px-3 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
+                  className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95"
                   style={{
                     borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
                     background: 'color-mix(in srgb, var(--app-card) 40%, transparent)',
@@ -705,9 +705,9 @@ function SellerHome() {
               </div>
             </div>
 
-            <div className="mt-4 flex items-center gap-3">
+            <div className="mt-3 flex items-center gap-3">
               <div
-                className="px-3 py-2 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic"
+                className="px-3 py-1.5 rounded-2xl border text-[10px] font-black uppercase tracking-widest italic"
                 style={{
                   borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
                   background: 'color-mix(in srgb, rgb(99 102 241 / 0.18) 60%, transparent)',
@@ -726,7 +726,7 @@ function SellerHome() {
                 <input
                   type="text"
                   placeholder="Buscar cliente en la ruta…"
-                  className="input-glass pl-10 !py-2.5"
+                  className="input-glass pl-10 !py-2"
                 />
               </div>
             </div>

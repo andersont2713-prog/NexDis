@@ -111,7 +111,7 @@ export default function NewCustomerPage() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0F172A] relative overflow-hidden text-slate-200">
+    <div className="flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
       <div className="decorative-blur top-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/10"></div>
 
       {/* Header */}

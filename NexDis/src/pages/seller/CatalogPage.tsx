@@ -18,7 +18,7 @@ export default function CatalogPage() {
   }, []);
 
   return (
-    <div className="flex flex-col h-full bg-[#0F172A] relative overflow-hidden">
+    <div className="flex flex-col h-full relative overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
       <div className="decorative-blur top-[-10%] right-[-10%] w-[300px] h-[300px] bg-indigo-500/10"></div>
       
       <div className="p-6 shrink-0 border-b border-white/5 flex items-center gap-4 relative z-10 backdrop-blur-md bg-slate-900/40">

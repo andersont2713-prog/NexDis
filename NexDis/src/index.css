@@ -13,25 +13,71 @@
 }
 
 @layer base {
+  :root.theme-aurora.dark {
+    --app-bg: #070a17;
+    --app-fg: #dbeafe;
+    --app-muted: rgba(219, 234, 254, 0.55);
+    --app-card: rgba(255, 255, 255, 0.06);
+    --app-card-hover: rgba(255, 255, 255, 0.10);
+    --app-border: rgba(255, 255, 255, 0.10);
+    --app-border-strong: rgba(255, 255, 255, 0.16);
+    --app-accent: #a78bfa; /* violet */
+    --app-accent-2: #22d3ee; /* cyan */
+    --app-success: #34d399;
+  }
+
+  :root.theme-aurora.light {
+    --app-bg: #f7fafc;
+    --app-fg: #0b1220;
+    --app-muted: rgba(11, 18, 32, 0.55);
+    --app-card: rgba(255, 255, 255, 0.85);
+    --app-card-hover: rgba(255, 255, 255, 0.95);
+    --app-border: rgba(11, 18, 32, 0.10);
+    --app-border-strong: rgba(11, 18, 32, 0.16);
+    --app-accent: #7c3aed; /* violet */
+    --app-accent-2: #0891b2; /* cyan */
+    --app-success: #059669;
+  }
+
   body {
-    @apply font-sans bg-[#0F172A] text-slate-200;
+    @apply font-sans;
+    background: radial-gradient(1200px 600px at 20% 10%, color-mix(in srgb, var(--app-accent) 22%, transparent), transparent 55%),
+      radial-gradient(900px 500px at 90% 20%, color-mix(in srgb, var(--app-accent-2) 18%, transparent), transparent 60%),
+      radial-gradient(1000px 600px at 50% 110%, rgba(255,255,255,0.06), transparent 55%),
+      var(--app-bg);
+    color: var(--app-fg);
   }
 }
 
 .frosted-card {
-  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 transition-all hover:bg-white/10;
+  background: var(--app-card);
+  border: 1px solid var(--app-border);
+  @apply backdrop-blur-md rounded-2xl p-5 transition-all;
+}
+
+.frosted-card:hover {
+  background: var(--app-card-hover);
+  border-color: var(--app-border-strong);
 }
 
 .glass-sidebar {
-  @apply bg-slate-900/50 backdrop-blur-xl border-r border-slate-700/50;
+  background: color-mix(in srgb, var(--app-bg) 60%, transparent);
+  border-right: 1px solid var(--app-border);
+  @apply backdrop-blur-xl;
 }
 
 .btn-glass {
-  @apply bg-white/10 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-xl font-medium hover:bg-white/20 transition-all flex items-center gap-2;
+  background: color-mix(in srgb, var(--app-card) 80%, transparent);
+  border: 1px solid var(--app-border);
+  color: var(--app-fg);
+  @apply backdrop-blur-md px-4 py-2 rounded-xl font-medium transition-all flex items-center gap-2;
 }
 
 .input-glass {
-  @apply w-full bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-2 text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 focus:border-indigo-500/50;
+  background: color-mix(in srgb, var(--app-card) 70%, transparent);
+  border: 1px solid var(--app-border);
+  color: var(--app-fg);
+  @apply w-full backdrop-blur-sm rounded-xl px-4 py-2 focus:outline-none;
 }
 
 .decorative-blur {
@@ -47,12 +93,12 @@
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(99, 102, 241, 0.2);
+  background: color-mix(in srgb, var(--app-accent) 30%, transparent);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.4);
+  background: color-mix(in srgb, var(--app-accent) 55%, transparent);
 }
 
 .premium-gradient-mask {

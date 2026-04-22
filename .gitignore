@@ -1,0 +1,20 @@
+# dependencies
+NexDis/node_modules/
+
+# local env (secrets)
+NexDis/.env.local
+NexDis/.env.*.local
+
+# build output
+NexDis/dist/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/

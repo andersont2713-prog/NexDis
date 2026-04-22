@@ -38,6 +38,7 @@ import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'motion/react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useRegional } from './context/RegionalContext.tsx';
+import { useTheme } from './context/ThemeContext.tsx';
 import { cn } from './lib/utils';
 import type { Product, Customer, Order, User } from './types';
 
@@ -79,9 +80,10 @@ const MOCK_STATS = [
 function AdminLayout({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { mode, toggle } = useTheme();
 
   return (
-    <div className="flex h-screen bg-[#0F172A] overflow-hidden text-slate-200">
+    <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)' }}>
       {/* Sidebar */}
       <motion.aside 
         initial={false}
@@ -151,7 +153,7 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
         <div className="decorative-blur top-[-10%] right-[-10%] w-[500px] h-[500px] bg-indigo-500/10"></div>
         <div className="decorative-blur bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-emerald-500/10"></div>
 
-        <header className="h-20 bg-slate-900/40 backdrop-blur-md border-b border-white/5 flex items-center justify-between px-8 shrink-0 relative z-10">
+        <header className="h-20 backdrop-blur-md flex items-center justify-between px-8 shrink-0 relative z-10 border-b" style={{ background: 'color-mix(in srgb, var(--app-bg) 70%, transparent)', borderColor: 'var(--app-border)' }}>
           <div className="flex items-center gap-6">
             <button 
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -165,9 +167,17 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <button
+              onClick={toggle}
+              className="p-2.5 rounded-xl border transition-all active:scale-90"
+              style={{ background: 'var(--app-card)', borderColor: 'var(--app-border)', color: 'var(--app-fg)' }}
+              title={mode === 'dark' ? 'Cambiar a claro' : 'Cambiar a oscuro'}
+            >
+              {mode === 'dark' ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            </button>
             <button className="relative p-2 text-slate-400 hover:bg-white/5 rounded-full">
               <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2 border-[#0F172A]"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full border-2" style={{ borderColor: 'var(--app-bg)' }}></span>
             </button>
             <div className="flex items-center gap-3 pl-4 border-l border-white/10">
               <div className="w-10 h-10 bg-indigo-500 rounded-full border-2 border-white/10"></div>
@@ -266,9 +276,9 @@ function Dashboard() {
             </ResponsiveContainer>
           </div>
           
-          <div className="frosted-card h-[520px] flex flex-col">
+          <div className="frosted-card h-[520px] flex flex-col min-h-0">
             <h3 className="text-lg font-bold mb-6 text-white uppercase italic tracking-tight">Alertas de Stock</h3>
-            <div className="space-y-4 flex-1 overflow-y-auto pr-1 custom-scrollbar">
+            <div className="space-y-4 flex-1 min-h-0 overflow-y-auto pr-1 custom-scrollbar">
               <StockAlertItem name="Aceite Girasol" stock={5} unit="und" status="Critico" />
               <StockAlertItem name="Arroz Premium" stock={140} unit="kg" status="Alerta" />
               <StockAlertItem name="Leche Entera" stock={2} unit="und" status="Critico" />
@@ -322,14 +332,19 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = window.location.pathname;
   const navigate = useNavigate();
+  const { toggle } = useTheme();
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
   return (
-    <div className="min-h-screen bg-[#0F172A] flex flex-col max-w-md mx-auto border-x border-white/5 text-slate-200 relative overflow-hidden">
+    <div className="min-h-screen flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
+      style={{ backgroundColor: 'var(--app-bg)', color: 'var(--app-fg)', borderColor: 'var(--app-border)' }}
+    >
       <div className="decorative-blur top-[-20%] right-[-20%] w-[400px] h-[400px] bg-indigo-500/10"></div>
       
-      <header className="bg-slate-900/80 backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b border-white/5 sticky top-0 z-50">
+      <header className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b sticky top-0 z-50"
+        style={{ background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)', borderColor: 'var(--app-border)' }}
+      >
         <div className="flex items-center gap-3">
           <button 
             onClick={toggleSidebar}
@@ -356,6 +371,14 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
           <button className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 relative">
             <Bell size={20} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full border-2 border-slate-900"></span>
+          </button>
+          <button
+            onClick={toggle}
+            className="p-2 rounded-xl border"
+            style={{ background: 'var(--app-card)', borderColor: 'var(--app-border)', color: 'var(--app-fg)' }}
+            title="Cambiar tema"
+          >
+            <Filter size={18} />
           </button>
         </div>
       </header>

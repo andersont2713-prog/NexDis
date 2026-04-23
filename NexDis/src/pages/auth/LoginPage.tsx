@@ -235,6 +235,16 @@ export default function LoginPage() {
               </div>
             </form>
 
+            {/* Provider Console access */}
+            <button
+              type="button"
+              onClick={() => navigate('/provider/login')}
+              className="mt-3 w-full rounded-xl border border-fuchsia-500/20 bg-fuchsia-500/5 text-fuchsia-300 px-3 py-2 text-[10px] font-black uppercase tracking-widest italic hover:bg-fuchsia-500/10 transition-all flex items-center justify-center gap-2"
+            >
+              <span className="w-2 h-2 rounded-full bg-gradient-to-br from-fuchsia-400 to-violet-500" />
+              Soy proveedor · Console →
+            </button>
+
             {/* Footer minimal */}
             <div className="mt-4 flex items-center justify-between text-[9px] font-bold text-slate-600 uppercase tracking-widest">
               <span>v2.4.0</span>

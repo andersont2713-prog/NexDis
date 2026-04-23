@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, Navigate, Link, useNavigate } from 'react-router-dom';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, type ReactNode } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -61,6 +61,15 @@ import SuppliersPage from './pages/admin/SuppliersPage';
 import PurchasesPage from './pages/admin/PurchasesPage';
 import AccountsReceivablePage from './pages/admin/AccountsReceivablePage';
 import WarehousesPage from './pages/admin/WarehousesPage';
+import ProviderLoginPage from './pages/provider/ProviderLoginPage';
+import ProviderLayout from './pages/provider/ProviderLayout';
+import ProviderDashboard from './pages/provider/ProviderDashboard';
+import TenantsPage from './pages/provider/TenantsPage';
+import PlansPage from './pages/provider/PlansPage';
+import SubscriptionsPage from './pages/provider/SubscriptionsPage';
+import PlatformBillingPage from './pages/provider/PlatformBillingPage';
+import ProviderSettingsPage from './pages/provider/ProviderSettingsPage';
+import { ProviderContextProvider, useProvider } from './context/ProviderContext';
 import CatalogPage from './pages/seller/CatalogPage';
 import NewOrderPage from './pages/seller/NewOrderPage';
 import NewCustomerPage from './pages/seller/NewCustomerPage';
@@ -1463,12 +1472,30 @@ export default function App() {
   const [currentZone, setCurrentZone] = useState<ZoneType | null>(null);
 
   return (
+    <ProviderContextProvider>
     <Router>
       <Toaster position="top-right" closeButton richColors />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/roles" element={<Navigate to="/seller" replace />} />
+
+        {/* Provider / Console (SaaS Platform) */}
+        <Route path="/provider/login" element={<ProviderLoginPage />} />
+        <Route path="/provider/*" element={
+          <ProviderGuard>
+            <ProviderLayout>
+              <Routes>
+                <Route path="/" element={<ProviderDashboard />} />
+                <Route path="/tenants" element={<TenantsPage />} />
+                <Route path="/plans" element={<PlansPage />} />
+                <Route path="/subscriptions" element={<SubscriptionsPage />} />
+                <Route path="/billing" element={<PlatformBillingPage />} />
+                <Route path="/settings" element={<ProviderSettingsPage />} />
+              </Routes>
+            </ProviderLayout>
+          </ProviderGuard>
+        } />
         
         {/* Admin Routes */}
         <Route path="/admin/*" element={
@@ -1516,5 +1543,12 @@ export default function App() {
         } />
       </Routes>
     </Router>
+    </ProviderContextProvider>
   );
+}
+
+function ProviderGuard({ children }: { children: ReactNode }) {
+  const { session } = useProvider();
+  if (!session) return <Navigate to="/provider/login" replace />;
+  return <>{children}</>;
 }

@@ -32,7 +32,10 @@ import {
   Wallet,
   ArrowUpRight,
   ArrowDownLeft,
-  Receipt
+  Receipt,
+  Truck,
+  ShoppingBag,
+  Warehouse as WarehouseIcon
 } from 'lucide-react';
 import { Toaster, toast } from 'sonner';
 import { motion, AnimatePresence, Reorder, useDragControls } from 'motion/react';
@@ -54,6 +57,10 @@ import ReturnsPage from './pages/admin/ReturnsPage';
 import ReportsPage from './pages/admin/ReportsPage';
 import CashControlPage from './pages/admin/CashControlPage';
 import SettingsPage from './pages/admin/SettingsPage';
+import SuppliersPage from './pages/admin/SuppliersPage';
+import PurchasesPage from './pages/admin/PurchasesPage';
+import AccountsReceivablePage from './pages/admin/AccountsReceivablePage';
+import WarehousesPage from './pages/admin/WarehousesPage';
 import CatalogPage from './pages/seller/CatalogPage';
 import NewOrderPage from './pages/seller/NewOrderPage';
 import NewCustomerPage from './pages/seller/NewCustomerPage';
@@ -119,10 +126,14 @@ function AdminLayout({ children }: { children: React.ReactNode }) {
           <NavLink to="/admin" icon={<LayoutDashboard size={18} />} label="Dashboard" isCollapsed={isCollapsed} />
           <NavLink to="/admin/inventory" icon={<Package size={18} />} label="Inventario" isCollapsed={isCollapsed} />
           <NavLink to="/admin/customers" icon={<Users size={18} />} label="Clientes" isCollapsed={isCollapsed} />
+          <NavLink to="/admin/suppliers" icon={<Truck size={18} />} label="Proveedores" isCollapsed={isCollapsed} />
+          <NavLink to="/admin/warehouses" icon={<WarehouseIcon size={18} />} label="Bodegas" isCollapsed={isCollapsed} />
           <NavLink to="/admin/pos" icon={<Zap size={18} />} label="Punto de Venta" isCollapsed={isCollapsed} />
           <NavLink to="/admin/users" icon={<UserPlus size={18} />} label="Usuarios" isCollapsed={isCollapsed} />
           <NavLink to="/admin/zones" icon={<MapIcon size={18} />} label="Zonas y Rutas" isCollapsed={isCollapsed} />
           <NavLink to="/admin/orders" icon={<ShoppingCart size={18} />} label="Pedidos" isCollapsed={isCollapsed} />
+          <NavLink to="/admin/purchases" icon={<ShoppingBag size={18} />} label="Compras" isCollapsed={isCollapsed} />
+          <NavLink to="/admin/receivables" icon={<Receipt size={18} />} label="Cuentas por Cobrar" isCollapsed={isCollapsed} />
           <NavLink to="/admin/returns" icon={<RotateCcw size={18} />} label="Devoluciones" isCollapsed={isCollapsed} />
           <NavLink to="/admin/reports" icon={<BarChart3 size={18} />} label="Reportes" isCollapsed={isCollapsed} />
           <NavLink to="/admin/cash" icon={<Wallet size={18} />} label="Caja Chica" isCollapsed={isCollapsed} />
@@ -1466,10 +1477,14 @@ export default function App() {
               <Route path="/" element={<Dashboard />} />
               <Route path="/inventory" element={<InventoryPage />} />
               <Route path="/customers" element={<CustomersPage />} />
+              <Route path="/suppliers" element={<SuppliersPage />} />
+              <Route path="/warehouses" element={<WarehousesPage />} />
               <Route path="/pos" element={<PosPage />} />
               <Route path="/users" element={<UsersManagementPage />} />
               <Route path="/zones" element={<ZonesManagementPage />} />
               <Route path="/orders" element={<OrdersManagementPage />} />
+              <Route path="/purchases" element={<PurchasesPage />} />
+              <Route path="/receivables" element={<AccountsReceivablePage />} />
               <Route path="/returns" element={<ReturnsPage />} />
               <Route path="/reports" element={<ReportsPage />} />
               <Route path="/cash" element={<CashControlPage />} />

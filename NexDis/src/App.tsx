@@ -740,7 +740,7 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
-  const headerHeight = 76; // base header height (without safe-area)
+  const headerHeight = 56; // base header height (without safe-area)
 
   return (
     <div className="h-[100dvh] flex flex-col max-w-md mx-auto border-x relative overflow-hidden"
@@ -764,44 +764,56 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
       />
       
       <header
-        className="backdrop-blur-xl px-6 py-5 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"
+        className="backdrop-blur-xl px-4 py-3 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"
         style={{
           background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)',
           borderColor: 'var(--app-border)',
-          paddingTop: 'calc(env(safe-area-inset-top) + 1.25rem)',
+          paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)',
         }}
       >
-        <div className="flex items-center gap-3">
-          <button 
+        <div className="flex items-center gap-2 min-w-0">
+          <button
             onClick={toggleSidebar}
-            className="p-2 -ml-2 rounded-xl text-slate-400 hover:bg-white/5 active:scale-95 transition-all"
+            className="p-2 -ml-1 rounded-xl text-slate-400 hover:bg-white/5 active:scale-95 transition-all shrink-0"
           >
-            <Menu size={24} />
+            <Menu size={22} />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-indigo-600/20">ND</div>
-            <div className="flex flex-col">
-              <span className="font-black text-white italic tracking-tighter text-sm leading-none">NexDist <span className="text-indigo-400 uppercase text-[8px] not-italic tracking-widest font-bold">FIELD</span></span>
-              <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mt-0.5 truncate max-w-[100px] italic">
-                {currentZone?.name || 'SIN ZONA'}
-              </span>
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-indigo-600/20 shrink-0 text-[11px]">
+              ND
             </div>
+            <span className="font-black text-white italic tracking-tighter text-sm leading-none truncate">
+              NexDist
+              <span className="text-indigo-400 uppercase text-[8px] not-italic tracking-widest font-bold ml-1">
+                FIELD
+              </span>
+            </span>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          {(!currentZone && location !== '/seller/zones') && (
-            <Link to="/seller/zones" className="px-3 py-1.5 bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-black uppercase italic rounded-lg animate-pulse">
-              Fijar Zona
-            </Link>
-          )}
-          <button className="p-2 rounded-xl bg-white/5 border border-white/10 text-slate-400 relative">
-            <Bell size={20} />
-            <span className="absolute top-2 right-2 w-2 h-2 bg-orange-500 rounded-full border-2 border-slate-900"></span>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <Link
+            to="/seller/zones"
+            className={cn(
+              'flex items-center gap-1 px-2 py-1.5 rounded-lg border text-[10px] font-black uppercase italic tracking-wider transition-all active:scale-95',
+              currentZone
+                ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-300 hover:bg-indigo-500/20'
+                : 'bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse'
+            )}
+            title={currentZone ? `Zona: ${currentZone.name}` : 'Fijar zona'}
+          >
+            <MapPin size={12} />
+            <span>{currentZone ? 'Zona' : 'Fijar'}</span>
+          </Link>
+          <button
+            className="p-2 rounded-xl text-slate-400 hover:bg-white/5 relative active:scale-95 transition-all"
+            title="Notificaciones"
+          >
+            <Bell size={18} />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-orange-500 rounded-full border-2 border-slate-900"></span>
           </button>
           <button
             onClick={toggle}
-            className="p-2 rounded-xl border"
-            style={{ background: 'var(--app-card)', borderColor: 'var(--app-border)', color: 'var(--app-fg)' }}
+            className="p-2 rounded-xl text-slate-400 hover:bg-white/5 active:scale-95 transition-all"
             title="Cambiar tema"
           >
             <Filter size={18} />

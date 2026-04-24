@@ -45,6 +45,7 @@ import { useTheme } from './context/ThemeContext.tsx';
 import { useRealtime } from './lib/realtime';
 import { cn } from './lib/utils';
 import type { Product, Customer, Order, User } from './types';
+import RouteMapModal from './components/RouteMapModal';
 
 // Page Imports
 import InventoryPage from './pages/admin/InventoryPage';
@@ -1012,6 +1013,7 @@ function SidebarNavLink({ to, icon, label, active = false, onClick, className }:
 
 function SellerHome() {
   const navigate = useNavigate();
+  const [mapOpen, setMapOpen] = useState(false);
   type Visit = {
     id: string;
     name: string;
@@ -1019,6 +1021,8 @@ function SellerHome() {
     status: 'visited' | 'current' | 'pending';
     time: string;
     photo?: string | null;
+    lat?: number;
+    lng?: number;
   };
 
   const [visits, setVisits] = useState<Visit[]>([
@@ -1048,15 +1052,22 @@ function SellerHome() {
 
       list.forEach((c: any) => {
         const photo = c?.photo ?? null;
+        const lat = typeof c?.lat === 'number' ? c.lat : undefined;
+        const lng = typeof c?.lng === 'number' ? c.lng : undefined;
         const key = (c?.name ?? '').trim().toLowerCase();
         const match =
           (c?.id && byId.get(c.id)) ||
           (key && byName.get(key));
 
         if (match) {
-          if (photo) {
-            const idx = next.findIndex(v => v.id === match.id);
-            if (idx >= 0) next[idx] = { ...next[idx], photo };
+          const idx = next.findIndex(v => v.id === match.id);
+          if (idx >= 0) {
+            next[idx] = {
+              ...next[idx],
+              ...(photo ? { photo } : {}),
+              ...(lat != null ? { lat } : {}),
+              ...(lng != null ? { lng } : {}),
+            };
           }
           return;
         }
@@ -1068,6 +1079,8 @@ function SellerHome() {
           status: 'pending',
           time: '—',
           photo,
+          lat,
+          lng,
         });
       });
 
@@ -1150,6 +1163,7 @@ function SellerHome() {
               <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
+                  onClick={() => setMapOpen(true)}
                   className="px-2.5 py-1 rounded-xl border text-[9px] font-black uppercase tracking-widest italic transition-all active:scale-95"
                   style={{
                     borderColor: 'color-mix(in srgb, var(--app-border) 85%, transparent)',
@@ -1210,6 +1224,18 @@ function SellerHome() {
           </DragScrollList>
         </div>
       </div>
+
+      <AnimatePresence>
+        {mapOpen && (
+          <RouteMapModal
+            open={mapOpen}
+            onClose={() => setMapOpen(false)}
+            visits={visits}
+            onCheckIn={(id) => handleCheckIn(id)}
+            onSelect={(id) => handleSelect(id)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -188,12 +188,39 @@ function FitBounds({ points }: { points: [number, number][] }) {
   return null;
 }
 
-/** Hook mínimo para que el mapa se recalcule al abrir el modal (animación). */
+/** Fuerza múltiples invalidateSize para que Leaflet detecte el tamaño
+   del contenedor en cuanto termina la animación de apertura del modal. */
 function InvalidateOnMount({ trigger }: { trigger: unknown }) {
   const map = useMap();
   useEffect(() => {
-    const t = setTimeout(() => map.invalidateSize(), 250);
-    return () => clearTimeout(t);
+    const timers: number[] = [];
+    // Cascada: 0ms, 50ms, 150ms, 400ms, 800ms
+    [0, 50, 150, 400, 800].forEach((delay) => {
+      const t = window.setTimeout(() => {
+        try {
+          map.invalidateSize({ animate: false });
+        } catch {
+          /* noop */
+        }
+      }, delay);
+      timers.push(t);
+    });
+
+    // ResizeObserver en el contenedor del mapa
+    const container = map.getContainer();
+    const ro = new ResizeObserver(() => {
+      try {
+        map.invalidateSize({ animate: false });
+      } catch {
+        /* noop */
+      }
+    });
+    ro.observe(container);
+
+    return () => {
+      timers.forEach((t) => clearTimeout(t));
+      ro.disconnect();
+    };
   }, [map, trigger]);
   return null;
 }
@@ -244,19 +271,31 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[120] max-w-md mx-auto"
-      style={{ backgroundColor: 'rgba(2,6,23,0.92)' }}
+      className="fixed inset-0 z-[120]"
+      style={{
+        backgroundColor: 'rgba(2,6,23,0.92)',
+        width: '100vw',
+        height: '100dvh',
+      }}
       ref={containerRef}
     >
-      {/* Mapa */}
-      <div className="absolute inset-0">
-        <MapContainer
-          center={DEFAULT_CENTER}
-          zoom={13}
-          scrollWheelZoom
-          zoomControl={false}
-          style={{ width: '100%', height: '100%', background: '#030712' }}
+      {/* Columna central (respeta max-w-md del layout móvil) */}
+      <div
+        className="relative mx-auto max-w-md"
+        style={{ width: '100%', height: '100%' }}
+      >
+        {/* Mapa */}
+        <div
+          className="absolute inset-0"
+          style={{ width: '100%', height: '100%' }}
         >
+          <MapContainer
+            center={DEFAULT_CENTER}
+            zoom={13}
+            scrollWheelZoom
+            zoomControl={false}
+            style={{ width: '100%', height: '100%', background: '#0b1220' }}
+          >
           {/* Capa base dinámica (satélite / google / híbrido / oscuro) */}
           <TileLayer
             key={activeLayer.id}
@@ -491,6 +530,7 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
         }
         .leaflet-control-attribution a { color: #94a3b8 !important; }
       `}</style>
+      </div>
     </motion.div>
   );
 }

@@ -15,6 +15,21 @@ import {
   sbDecrementStock,
   sbStats,
 } from './supabaseRepo.js';
+import { getMysqlPool } from './mysqlAdmin.js';
+import {
+  myListCategories,
+  myInsertCategory,
+  myListProducts,
+  myInsertProduct,
+  myUpdateProductImageUrl,
+  myListCustomers,
+  myInsertCustomer,
+  myInsertOrder,
+  myListOrders,
+  myUpdateOrderStatus,
+  myDecrementStock,
+  myStats,
+} from './mysqlRepo.js';
 
 type RealtimeEvent =
   | { type: 'customers:created'; payload: any }
@@ -109,6 +124,7 @@ export function createApiApp(opts: Options = {}): Express {
   app.get('/api/health', (_req, res) => {
     res.json({
       ok: true,
+      mysql: !!getMysqlPool(),
       supabase: !!getSupabaseAdmin(),
       sse: supportSse,
       timestamp: new Date().toISOString(),
@@ -117,6 +133,8 @@ export function createApiApp(opts: Options = {}): Express {
 
   app.get('/api/inventory', async (_req, res) => {
     try {
+      const my = getMysqlPool();
+      if (my) return res.json(await myListProducts(my));
       const sb = getSupabaseAdmin();
       if (sb) return res.json(await sbListProducts(sb));
       res.json(db.inventory);
@@ -128,6 +146,8 @@ export function createApiApp(opts: Options = {}): Express {
 
   app.get('/api/categories', async (_req, res) => {
     try {
+      const my = getMysqlPool();
+      if (my) return res.json(await myListCategories(my));
       const sb = getSupabaseAdmin();
       if (sb) return res.json(await sbListCategories(sb));
       res.json(db.categories);
@@ -141,6 +161,12 @@ export function createApiApp(opts: Options = {}): Express {
     const name = String(req.body?.name ?? '').trim();
     if (!name) return res.status(400).json({ error: 'name is required' });
     try {
+      const my = getMysqlPool();
+      if (my) {
+        await myInsertCategory(my, name);
+        broadcast({ type: 'categories:updated', payload: { name } });
+        return res.status(201).json({ name });
+      }
       const sb = getSupabaseAdmin();
       if (sb) {
         await sbInsertCategory(sb, name);
@@ -154,7 +180,7 @@ export function createApiApp(opts: Options = {}): Express {
       return res.status(201).json({ name });
     } catch (e: any) {
       const msg = String(e?.message ?? e ?? '');
-      if (msg.includes('duplicate') || msg.includes('unique') || e?.code === '23505') {
+      if (msg.includes('Duplicate') || msg.includes('duplicate') || msg.includes('unique') || e?.code === 'ER_DUP_ENTRY' || e?.code === '23505') {
         return res.status(409).json({ error: 'category already exists' });
       }
       console.error(e);
@@ -180,6 +206,12 @@ export function createApiApp(opts: Options = {}): Express {
       imageUrl: body.imageUrl ?? null,
     };
     try {
+      const my = getMysqlPool();
+      if (my) {
+        const saved = await myInsertProduct(my, payload);
+        broadcast({ type: 'inventory:updated', payload: saved });
+        return res.status(201).json(saved);
+      }
       const sb = getSupabaseAdmin();
       if (sb) {
         const saved = await sbInsertProduct(sb, payload);
@@ -191,7 +223,7 @@ export function createApiApp(opts: Options = {}): Express {
       return res.status(201).json(payload);
     } catch (e: any) {
       const msg = String(e?.message ?? e ?? '');
-      if (msg.includes('duplicate') || msg.includes('unique') || e?.code === '23505') {
+      if (msg.includes('Duplicate') || msg.includes('duplicate') || msg.includes('unique') || e?.code === 'ER_DUP_ENTRY' || e?.code === '23505') {
         return res.status(409).json({ error: 'SKU ya existe' });
       }
       console.error(e);
@@ -207,6 +239,12 @@ export function createApiApp(opts: Options = {}): Express {
     const dataUrl = `data:${file.mimetype};base64,${file.buffer.toString('base64')}`;
 
     try {
+      const my = getMysqlPool();
+      if (my) {
+        const saved = await myUpdateProductImageUrl(my, id, dataUrl);
+        broadcast({ type: 'inventory:updated', payload: saved });
+        return res.json(saved);
+      }
       const sb = getSupabaseAdmin();
       if (sb) {
         const saved = await sbUpdateProductImageUrl(sb, id, dataUrl);
@@ -226,6 +264,8 @@ export function createApiApp(opts: Options = {}): Express {
 
   app.get('/api/customers', async (_req, res) => {
     try {
+      const my = getMysqlPool();
+      if (my) return res.json(await myListCustomers(my));
       const sb = getSupabaseAdmin();
       if (sb) return res.json(await sbListCustomers(sb));
       res.json(db.customers);
@@ -237,6 +277,12 @@ export function createApiApp(opts: Options = {}): Express {
 
   app.post('/api/customers', async (req, res) => {
     try {
+      const my = getMysqlPool();
+      if (my) {
+        const customer = await myInsertCustomer(my, req.body ?? {});
+        broadcast({ type: 'customers:created', payload: customer });
+        return res.status(201).json(customer);
+      }
       const sb = getSupabaseAdmin();
       if (sb) {
         const customer = await sbInsertCustomer(sb, req.body ?? {});
@@ -269,6 +315,15 @@ export function createApiApp(opts: Options = {}): Express {
         status: 'pending',
         createdAt: new Date().toISOString(),
       };
+
+      const my = getMysqlPool();
+      if (my) {
+        await myDecrementStock(my, normalizedItems);
+        const order = await myInsertOrder(my, base);
+        broadcast({ type: 'orders:created', payload: order });
+        broadcast({ type: 'inventory:updated', payload: { reason: 'order', orderId: base.id } });
+        return res.json(order);
+      }
 
       const sb = getSupabaseAdmin();
       if (sb) {
@@ -306,6 +361,8 @@ export function createApiApp(opts: Options = {}): Express {
   app.get('/api/orders', async (req, res) => {
     try {
       const sellerId = req.query.sellerId ? String(req.query.sellerId) : undefined;
+      const my = getMysqlPool();
+      if (my) return res.json(await myListOrders(my, { sellerId }));
       const sb = getSupabaseAdmin();
       if (sb) return res.json(await sbListOrders(sb, { sellerId }));
       const orders = sellerId ? db.orders.filter((o: any) => o.sellerId === sellerId) : db.orders;
@@ -322,6 +379,12 @@ export function createApiApp(opts: Options = {}): Express {
     const allowed = new Set(['pending', 'processed', 'shipped', 'delivered', 'cancelled']);
     if (!allowed.has(status)) return res.status(400).json({ error: 'invalid status' });
     try {
+      const my = getMysqlPool();
+      if (my) {
+        const updated = await myUpdateOrderStatus(my, id, status);
+        broadcast({ type: 'orders:created', payload: updated });
+        return res.json(updated);
+      }
       const sb = getSupabaseAdmin();
       if (sb) {
         const updated = await sbUpdateOrderStatus(sb, id, status);
@@ -347,6 +410,8 @@ export function createApiApp(opts: Options = {}): Express {
 
   app.get('/api/stats', async (_req, res) => {
     try {
+      const my = getMysqlPool();
+      if (my) return res.json(await myStats(my));
       const sb = getSupabaseAdmin();
       if (sb) return res.json(await sbStats(sb));
       const totalSales = db.orders.reduce((sum, o: any) => sum + Number(o.total ?? 0), 0);

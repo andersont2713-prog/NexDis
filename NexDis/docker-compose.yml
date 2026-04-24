@@ -1,0 +1,62 @@
+version: '3.8'
+
+# NexDis: stack local de base de datos
+#   - MySQL 8.0 (persistente en volumen named)
+#   - phpMyAdmin 5 (UI web en http://localhost:8080)
+#
+# Uso:
+#   docker compose up -d        # levantar MySQL + phpMyAdmin en segundo plano
+#   docker compose logs -f      # ver logs
+#   docker compose down         # detener (mantiene los datos)
+#   docker compose down -v      # detener y BORRAR datos
+#
+# Conexión desde la app Node:
+#   MYSQL_HOST=127.0.0.1
+#   MYSQL_PORT=3306
+#   MYSQL_USER=nexdis
+#   MYSQL_PASSWORD=nexdis_pass
+#   MYSQL_DATABASE=nexdis
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: nexdis-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_pass
+      MYSQL_DATABASE: nexdis
+      MYSQL_USER: nexdis
+      MYSQL_PASSWORD: nexdis_pass
+    command:
+      - --default-authentication-plugin=caching_sha2_password
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - nexdis_mysql_data:/var/lib/mysql
+      - ./mysql/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  phpmyadmin:
+    image: phpmyadmin:5
+    container_name: nexdis-phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_ARBITRARY: 0
+      UPLOAD_LIMIT: 256M
+    ports:
+      - "8080:80"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  nexdis_mysql_data:
+    name: nexdis_mysql_data

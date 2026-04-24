@@ -28,7 +28,7 @@ import {
 import { cn } from '../lib/utils';
 
 type BaseLayer = {
-  id: 'satellite' | 'google-road' | 'google-hybrid' | 'dark';
+  id: 'osm' | 'satellite' | 'google-road' | 'google-hybrid' | 'dark';
   label: string;
   icon: typeof Satellite;
   url: string;
@@ -38,6 +38,16 @@ type BaseLayer = {
 };
 
 const BASE_LAYERS: BaseLayer[] = [
+  {
+    id: 'osm',
+    label: 'Calles',
+    icon: MapTypeIcon,
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    subdomains: ['a', 'b', 'c'],
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 19,
+  },
   {
     id: 'satellite',
     label: 'Satélite',
@@ -227,9 +237,39 @@ function InvalidateOnMount({ trigger }: { trigger: unknown }) {
 
 export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSelect }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [baseLayerId, setBaseLayerId] = useState<BaseLayer['id']>('satellite');
+  const [baseLayerId, setBaseLayerId] = useState<BaseLayer['id']>('osm');
   const [layerPickerOpen, setLayerPickerOpen] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
+  const [viewport, setViewport] = useState<{ w: number; h: number }>(() => ({
+    w: typeof window !== 'undefined' ? window.innerWidth : 400,
+    h: typeof window !== 'undefined' ? window.innerHeight : 600,
+  }));
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  // Retrasa el montaje del mapa hasta después del primer frame para que el
+  // contenedor ya tenga medidas reales (fix clásico de pantalla negra).
+  useEffect(() => {
+    if (!open) {
+      setMapReady(false);
+      return;
+    }
+    const t = window.setTimeout(() => setMapReady(true), 60);
+    return () => clearTimeout(t);
+  }, [open]);
+
+  // Escucha cambios de viewport (rotación, teclado, etc.)
+  useEffect(() => {
+    if (!open) return;
+    const onResize = () =>
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+    onResize();
+    window.addEventListener('resize', onResize);
+    window.addEventListener('orientationchange', onResize);
+    return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
+    };
+  }, [open]);
 
   const activeLayer = useMemo(
     () => BASE_LAYERS.find((l) => l.id === baseLayerId) ?? BASE_LAYERS[0],
@@ -271,11 +311,13 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[120]"
+      className="fixed z-[120]"
       style={{
         backgroundColor: 'rgba(2,6,23,0.92)',
-        width: '100vw',
-        height: '100dvh',
+        top: 0,
+        left: 0,
+        width: `${viewport.w}px`,
+        height: `${viewport.h}px`,
       }}
       ref={containerRef}
     >
@@ -287,8 +329,13 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
         {/* Mapa */}
         <div
           className="absolute inset-0"
-          style={{ width: '100%', height: '100%' }}
+          style={{
+            width: '100%',
+            height: '100%',
+            minHeight: `${viewport.h}px`,
+          }}
         >
+          {mapReady && (
           <MapContainer
             center={DEFAULT_CENTER}
             zoom={13}
@@ -354,7 +401,13 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
 
           <ZoomControl position="bottomright" />
         </MapContainer>
-      </div>
+          )}
+          {!mapReady && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full border-2 border-indigo-400/40 border-t-indigo-400 animate-spin" />
+            </div>
+          )}
+        </div>
 
       {/* Header flotante */}
       <div className="absolute top-0 left-0 right-0 z-[10]">

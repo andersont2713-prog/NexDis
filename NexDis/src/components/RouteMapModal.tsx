@@ -11,8 +11,72 @@ import {
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { motion } from 'motion/react';
-import { X, Navigation, MapPin, Clock, CheckCircle2, Radio, Route as RouteIcon, Crosshair } from 'lucide-react';
+import {
+  X,
+  Navigation,
+  MapPin,
+  Clock,
+  CheckCircle2,
+  Radio,
+  Route as RouteIcon,
+  Crosshair,
+  Layers,
+  Satellite,
+  Map as MapTypeIcon,
+  Moon,
+} from 'lucide-react';
 import { cn } from '../lib/utils';
+
+type BaseLayer = {
+  id: 'satellite' | 'google-road' | 'google-hybrid' | 'dark';
+  label: string;
+  icon: typeof Satellite;
+  url: string;
+  subdomains?: string[];
+  attribution: string;
+  maxZoom: number;
+};
+
+const BASE_LAYERS: BaseLayer[] = [
+  {
+    id: 'satellite',
+    label: 'Satélite',
+    icon: Satellite,
+    url:
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution:
+      'Tiles &copy; Esri &mdash; Source: Esri, Earthstar Geographics, USDA, USGS, AEX, GeoEye, Maxar',
+    maxZoom: 19,
+  },
+  {
+    id: 'google-road',
+    label: 'Google',
+    icon: MapTypeIcon,
+    url: 'https://mt{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',
+    subdomains: ['0', '1', '2', '3'],
+    attribution: '&copy; Google Maps',
+    maxZoom: 20,
+  },
+  {
+    id: 'google-hybrid',
+    label: 'Híbrido',
+    icon: Layers,
+    url: 'https://mt{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+    subdomains: ['0', '1', '2', '3'],
+    attribution: '&copy; Google Maps',
+    maxZoom: 20,
+  },
+  {
+    id: 'dark',
+    label: 'Oscuro',
+    icon: Moon,
+    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+    subdomains: ['a', 'b', 'c', 'd'],
+    attribution:
+      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19,
+  },
+];
 
 export type RouteMapVisit = {
   id: string;
@@ -136,7 +200,14 @@ function InvalidateOnMount({ trigger }: { trigger: unknown }) {
 
 export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSelect }: Props) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [baseLayerId, setBaseLayerId] = useState<BaseLayer['id']>('satellite');
+  const [layerPickerOpen, setLayerPickerOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
+
+  const activeLayer = useMemo(
+    () => BASE_LAYERS.find((l) => l.id === baseLayerId) ?? BASE_LAYERS[0],
+    [baseLayerId]
+  );
 
   const withCoords = useMemo(
     () =>
@@ -186,11 +257,13 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
           zoomControl={false}
           style={{ width: '100%', height: '100%', background: '#030712' }}
         >
-          {/* Tile dark premium (CartoDB Dark Matter, gratis) */}
+          {/* Capa base dinámica (satélite / google / híbrido / oscuro) */}
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png"
-            subdomains={['a', 'b', 'c', 'd']}
+            key={activeLayer.id}
+            attribution={activeLayer.attribution}
+            url={activeLayer.url}
+            subdomains={activeLayer.subdomains as any}
+            maxZoom={activeLayer.maxZoom}
           />
 
           <FitBounds points={routePoints} />
@@ -285,6 +358,61 @@ export default function RouteMapModal({ visits, open, onClose, onCheckIn, onSele
           <LegendDot color="from-emerald-500 to-teal-600" label="Visitado" />
           <LegendDot color="from-slate-600 to-slate-800" label="Pendiente" />
         </div>
+      </div>
+
+      {/* Selector de capa (flotante, lado derecho) */}
+      <div
+        className="absolute right-3 z-[11] flex flex-col items-end gap-2"
+        style={{ top: 'calc(env(safe-area-inset-top) + 110px)' }}
+      >
+        <button
+          type="button"
+          onClick={() => setLayerPickerOpen((v) => !v)}
+          className="w-11 h-11 rounded-2xl border border-white/15 bg-slate-900/85 backdrop-blur-xl text-white flex items-center justify-center shadow-2xl shadow-indigo-950/40 active:scale-95 transition-all"
+          title="Cambiar vista"
+        >
+          <Layers size={18} />
+        </button>
+
+        {layerPickerOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.95 }}
+            className="rounded-2xl border border-white/15 bg-slate-900/92 backdrop-blur-xl overflow-hidden shadow-2xl shadow-indigo-950/50"
+          >
+            <div className="px-3 py-2 border-b border-white/10">
+              <p className="text-[9px] font-black uppercase tracking-[0.28em] italic text-indigo-300">
+                Tipo de mapa
+              </p>
+            </div>
+            <div className="p-1.5 grid grid-cols-2 gap-1.5 min-w-[220px]">
+              {BASE_LAYERS.map((layer) => {
+                const Icon = layer.icon;
+                const isActive = layer.id === baseLayerId;
+                return (
+                  <button
+                    key={layer.id}
+                    type="button"
+                    onClick={() => {
+                      setBaseLayerId(layer.id);
+                      setLayerPickerOpen(false);
+                    }}
+                    className={cn(
+                      'flex items-center gap-2 px-2.5 py-2 rounded-xl border text-[10px] font-black uppercase tracking-widest italic transition-all active:scale-95',
+                      isActive
+                        ? 'border-indigo-400/50 bg-indigo-500/15 text-white shadow-lg shadow-indigo-600/30'
+                        : 'border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                    )}
+                  >
+                    <Icon size={14} className={isActive ? 'text-indigo-300' : 'text-slate-400'} />
+                    <span>{layer.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Tarjeta inferior (cliente seleccionado) */}

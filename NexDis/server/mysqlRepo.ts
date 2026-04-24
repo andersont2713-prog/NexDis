@@ -193,7 +193,7 @@ export async function myInsertCustomer(pool: Pool, body: Record<string, unknown>
   await pool.query(
     `INSERT INTO customers
        (id, name, contact, credit_limit, current_balance, lat, lng, email, phone, address, history)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CAST(? AS JSON))`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       id,
       String(body.name ?? ''),
@@ -228,7 +228,7 @@ export async function myInsertOrder(pool: Pool, order: Record<string, unknown>) 
     createdAt: order.createdAt ?? new Date().toISOString(),
   };
   await pool.query(
-    'INSERT INTO orders (id, payload) VALUES (?, CAST(? AS JSON))',
+    'INSERT INTO orders (id, payload) VALUES (?, ?)',
     [id, JSON.stringify(full)],
   );
   return full;
@@ -262,7 +262,7 @@ export async function myUpdateOrderStatus(
 
   const current = parseOrder(rows[0]);
   const updated = { ...current, status };
-  await pool.query('UPDATE orders SET payload = CAST(? AS JSON) WHERE id = ?', [
+  await pool.query('UPDATE orders SET payload = ? WHERE id = ?', [
     JSON.stringify(updated),
     id,
   ]);

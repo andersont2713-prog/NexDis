@@ -1,5 +1,5 @@
 import type {SupabaseClient} from '@supabase/supabase-js';
-import {getSupabaseAdmin} from './supabaseAdmin.ts';
+import {getSupabaseAdmin} from './supabaseAdmin';
 
 type ProductRow = {
   id: string;

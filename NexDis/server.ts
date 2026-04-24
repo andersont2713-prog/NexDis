@@ -4,8 +4,8 @@ import { createServer as createViteServer } from 'vite';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-import { createApiApp } from './server/apiApp';
-import { getSupabaseAdmin } from './server/supabaseAdmin';
+import { createApiApp } from './server/apiApp.js';
+import { getSupabaseAdmin } from './server/supabaseAdmin.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

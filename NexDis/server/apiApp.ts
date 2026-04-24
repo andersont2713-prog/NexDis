@@ -1,6 +1,6 @@
 import express, { type Express, type Response } from 'express';
 import multer from 'multer';
-import { getSupabaseAdmin } from './supabaseAdmin';
+import { getSupabaseAdmin } from './supabaseAdmin.js';
 import {
   sbListCategories,
   sbInsertCategory,
@@ -14,7 +14,7 @@ import {
   sbUpdateOrderStatus,
   sbDecrementStock,
   sbStats,
-} from './supabaseRepo';
+} from './supabaseRepo.js';
 
 type RealtimeEvent =
   | { type: 'customers:created'; payload: any }

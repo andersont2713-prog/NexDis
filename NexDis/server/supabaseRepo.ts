@@ -107,16 +107,37 @@ export async function sbListCustomers(sb: SupabaseClient) {
   }));
 }
 
+function bodyLatLng(body: Record<string, unknown>): {
+  lat: number | null;
+  lng: number | null;
+} {
+  if (body.lat != null || body.lng != null) {
+    return {
+      lat: body.lat != null ? Number(body.lat) : null,
+      lng: body.lng != null ? Number(body.lng) : null,
+    };
+  }
+  const g = body.gps as { lat?: unknown; lng?: unknown } | undefined;
+  if (g && typeof g === 'object') {
+    return {
+      lat: g.lat != null ? Number(g.lat) : null,
+      lng: g.lng != null ? Number(g.lng) : null,
+    };
+  }
+  return { lat: null, lng: null };
+}
+
 export async function sbInsertCustomer(sb: SupabaseClient, body: Record<string, unknown>) {
   const id = String(body.id ?? `CUST-${Date.now()}`);
+  const { lat, lng } = bodyLatLng(body);
   const row = {
     id,
     name: body.name,
     contact: body.contact ?? '',
     credit_limit: Number(body.creditLimit ?? body.credit_limit ?? 0),
     current_balance: Number(body.currentBalance ?? body.current_balance ?? 0),
-    lat: body.lat != null ? Number(body.lat) : null,
-    lng: body.lng != null ? Number(body.lng) : null,
+    lat,
+    lng,
     email: body.email ?? '',
     phone: body.phone ?? '',
     address: body.address ?? '',

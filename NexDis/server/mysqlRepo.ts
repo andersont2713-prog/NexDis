@@ -93,6 +93,27 @@ function parseOrder(r: OrderRow) {
   }
 }
 
+/** El formulario de clientes envía `gps: { lat, lng }`; normalizamos a lat/lng. */
+function bodyLatLng(body: Record<string, unknown>): {
+  lat: number | null;
+  lng: number | null;
+} {
+  if (body.lat != null || body.lng != null) {
+    return {
+      lat: body.lat != null ? Number(body.lat) : null,
+      lng: body.lng != null ? Number(body.lng) : null,
+    };
+  }
+  const g = body.gps as { lat?: unknown; lng?: unknown } | undefined;
+  if (g && typeof g === 'object') {
+    return {
+      lat: g.lat != null ? Number(g.lat) : null,
+      lng: g.lng != null ? Number(g.lng) : null,
+    };
+  }
+  return { lat: null, lng: null };
+}
+
 /* ------------------------------------------------------------------ */
 /* Categorías                                                          */
 /* ------------------------------------------------------------------ */
@@ -190,6 +211,7 @@ export async function myListCustomers(pool: Pool) {
 export async function myInsertCustomer(pool: Pool, body: Record<string, unknown>) {
   const id = String(body.id ?? `CUST-${Date.now()}`);
   const history = Array.isArray(body.history) ? body.history : [];
+  const { lat, lng } = bodyLatLng(body);
   await pool.query(
     `INSERT INTO customers
        (id, name, contact, credit_limit, current_balance, lat, lng, email, phone, address, history)
@@ -200,8 +222,8 @@ export async function myInsertCustomer(pool: Pool, body: Record<string, unknown>
       String(body.contact ?? ''),
       Number((body.creditLimit ?? (body as any).credit_limit) ?? 0),
       Number((body.currentBalance ?? (body as any).current_balance) ?? 0),
-      body.lat != null ? Number(body.lat) : null,
-      body.lng != null ? Number(body.lng) : null,
+      lat,
+      lng,
       String(body.email ?? ''),
       String(body.phone ?? ''),
       String(body.address ?? ''),

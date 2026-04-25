@@ -21,6 +21,7 @@ services:
   mysql:
     image: mysql:8.0
     container_name: nexdis-mysql
+    
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root_pass

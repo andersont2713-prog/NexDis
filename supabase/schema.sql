@@ -1,5 +1,9 @@
 -- Ejecutar en Supabase: SQL Editor → New query → Run
 -- Proyecto NexDis: tablas base para inventario, categorías, clientes y pedidos.
+--
+-- Si pegas y falla: no partas filas a la mitad; cada fila de VALUES es un ( ... )
+-- completo. Usa nombres sin tilde en datos de prueba para evitar problemas de
+-- copiado en algunos editores (o duplica comillas en SQL: 'Juan''s' ).
 
 create extension if not exists "pgcrypto";
 
@@ -50,7 +54,10 @@ create table if not exists public.orders (
   created_at timestamptz default now()
 );
 
--- Datos iniciales opcionales
+-- ---------------------------------------------------------------------------
+-- Datos iniciales (idempotente: seguro re-ejecutar)
+-- ---------------------------------------------------------------------------
+
 insert into public.categories (name)
 values
   ('General'),
@@ -60,17 +67,66 @@ values
   ('Limpieza')
 on conflict (name) do nothing;
 
+-- id, name, sku, stock, min_stock, max_stock, warehouse, lot, expiry, price, category
 insert into public.products (id, name, sku, stock, min_stock, max_stock, warehouse, lot, expiry, price, category)
 values
-  ('1', 'Arroz Premium 1kg', 'ARZ-001', 1200, 200, 5000, 'Principal', 'L2024-001', '2025-12-31', 0, 'Abarrotes'),
-  ('2', 'Aceite Girasol 900ml', 'ACE-900', 850, 100, 2000, 'Norte', 'L2024-052', '2025-06-15', 0, 'Abarrotes')
+  (
+    '1',
+    'Arroz Premium 1kg',
+    'ARZ-001',
+    1200,
+    200,
+    5000,
+    'Principal',
+    'L2024-001',
+    '2025-12-31',
+    0,
+    'Abarrotes'
+  ),
+  (
+    '2',
+    'Aceite Girasol 900ml',
+    'ACE-900',
+    850,
+    100,
+    2000,
+    'Norte',
+    'L2024-052',
+    '2025-06-15',
+    0,
+    'Abarrotes'
+  )
 on conflict (id) do nothing;
 
+-- id, name, contact, credit_limit, current_balance, lat, lng, email, phone, address, history
 insert into public.customers (id, name, contact, credit_limit, current_balance, lat, lng, email, phone, address, history)
 values
-  ('1', 'Minimarket La Esquina', 'Juan Perez', 50000, 12500, -12.046374, -77.042793, '', '', '', '[]'::jsonb),
-  ('2', 'Tienda Don Pepe', 'Jose Garcia', 20000, 5000, -12.05, -77.05, '', '', '', '[]'::jsonb)
+  (
+    '1',
+    'Minimarket La Esquina',
+    'Juan Perez',
+    50000,
+    12500,
+    -12.046374,
+    -77.042793,
+    '',
+    '',
+    '',
+    '[]'::jsonb
+  ),
+  (
+    '2',
+    'Tienda Don Pepe',
+    'Jose Garcia',
+    20000,
+    5000,
+    -12.05,
+    -77.05,
+    '',
+    '',
+    '',
+    '[]'::jsonb
+  )
 on conflict (id) do nothing;
 
 -- Más adelante: habilita RLS y define políticas en el dashboard (especialmente si usas VITE_SUPABASE_ANON_KEY en el cliente).
-

@@ -1,8 +1,10 @@
 # Railway: https://docs.railway.app/deploy/config-as-code
-# En el dashboard, Root Directory = carpeta de este archivo (p. ej. NexDis).
+# Root Directory en el dashboard = carpeta de este archivo (p. ej. NexDis).
+# Dockerfile evita fallos de Railpack al crear el plan de build.
 
 [build]
-buildCommand = "npm run build"
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
 
 [deploy]
 startCommand = "NODE_ENV=production npm start"

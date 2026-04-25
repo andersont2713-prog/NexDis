@@ -9,22 +9,26 @@ let cachedPool: mysql.Pool | null | undefined;
  * Variables soportadas:
  *   MYSQL_URL              (mysql://user:pass@host:3306/dbname)      ← prioridad
  *   - o bien -
- *   MYSQL_HOST             (default: 127.0.0.1)
- *   MYSQL_PORT             (default: 3306)
- *   MYSQL_USER             (requerido)
- *   MYSQL_PASSWORD         (requerido)
- *   MYSQL_DATABASE         (requerido)
+ *   MYSQL_HOST / MYSQLHOST (Railway usa MYSQLHOST; default: 127.0.0.1)
+ *   MYSQL_PORT / MYSQLPORT (default: 3306)
+ *   MYSQL_USER / MYSQLUSER (requerido sin URL)
+ *   MYSQL_PASSWORD / MYSQLPASSWORD
+ *   MYSQL_DATABASE / MYSQLDATABASE (requerido sin URL)
  *   MYSQL_CONNECTION_LIMIT (default: 10)
- *   MYSQL_SSL              ('true' para producción con SSL obligatorio)
+ *   MYSQL_SSL              ('true' para proveedores que exijan TLS)
  */
 export function getMysqlPool(): mysql.Pool | null {
   if (cachedPool !== undefined) return cachedPool;
 
   const url = process.env.MYSQL_URL?.trim();
 
-  const user = process.env.MYSQL_USER?.trim();
-  const password = process.env.MYSQL_PASSWORD;
-  const database = process.env.MYSQL_DATABASE?.trim();
+  const user =
+    process.env.MYSQL_USER?.trim() || process.env.MYSQLUSER?.trim();
+  const password =
+    process.env.MYSQL_PASSWORD ?? process.env.MYSQLPASSWORD;
+  const database =
+    process.env.MYSQL_DATABASE?.trim() ||
+    process.env.MYSQLDATABASE?.trim();
 
   if (!url && (!user || !database)) {
     cachedPool = null;
@@ -36,12 +40,20 @@ export function getMysqlPool(): mysql.Pool | null {
       ? { rejectUnauthorized: true }
       : undefined;
 
+  const host =
+    process.env.MYSQL_HOST?.trim() ||
+    process.env.MYSQLHOST?.trim() ||
+    '127.0.0.1';
+  const port = Number(
+    process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306,
+  );
+
   try {
     cachedPool = url
       ? mysql.createPool(url)
       : mysql.createPool({
-          host: process.env.MYSQL_HOST?.trim() || '127.0.0.1',
-          port: Number(process.env.MYSQL_PORT || 3306),
+          host,
+          port,
           user: user!,
           password: password ?? '',
           database: database!,

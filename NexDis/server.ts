@@ -44,9 +44,16 @@ async function startServer() {
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running at http://localhost:${PORT}`);
     if (getMysqlPool()) {
-      console.log(
-        `MySQL: activo (${process.env.MYSQL_HOST ?? '127.0.0.1'}:${process.env.MYSQL_PORT ?? '3306'}/${process.env.MYSQL_DATABASE ?? 'nexdis'})`,
-      );
+      const h =
+        process.env.MYSQL_HOST ||
+        process.env.MYSQLHOST ||
+        '127.0.0.1';
+      const p = process.env.MYSQL_PORT || process.env.MYSQLPORT || '3306';
+      const d =
+        process.env.MYSQL_DATABASE ||
+        process.env.MYSQLDATABASE ||
+        'nexdis';
+      console.log(`MySQL: activo (${h}:${p}/${d})`);
     } else if (getSupabaseAdmin()) {
       console.log('Supabase: activo (SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY)');
     } else {

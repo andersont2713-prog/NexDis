@@ -32,12 +32,13 @@ function loadEnvFile(file) {
 loadEnvFile(path.join(rootDir, '.env.local'));
 loadEnvFile(path.join(rootDir, '.env'));
 
-const dbName = process.env.MYSQL_DATABASE || 'nexdis';
+const dbName =
+  process.env.MYSQL_DATABASE || process.env.MYSQLDATABASE || 'nexdis';
 const baseConfig = {
-  host: process.env.MYSQL_HOST || '127.0.0.1',
-  port: Number(process.env.MYSQL_PORT || 3306),
-  user: process.env.MYSQL_USER || 'root',
-  password: process.env.MYSQL_PASSWORD || '',
+  host: process.env.MYSQL_HOST || process.env.MYSQLHOST || '127.0.0.1',
+  port: Number(process.env.MYSQL_PORT || process.env.MYSQLPORT || 3306),
+  user: process.env.MYSQL_USER || process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQL_PASSWORD ?? process.env.MYSQLPASSWORD ?? '',
   multipleStatements: true,
 };
 

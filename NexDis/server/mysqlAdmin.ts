@@ -9,7 +9,7 @@ let cachedPool: mysql.Pool | null | undefined;
  * Variables soportadas:
  *   MYSQL_URL              (mysql://user:pass@host:3306/dbname)      ← prioridad
  *   - o bien -
- *   MYSQL_HOST / MYSQLHOST (Railway usa MYSQLHOST; default: 127.0.0.1)
+ *   MYSQL_HOST / MYSQLHOST (algunos PaaS usan MYSQLHOST; default: 127.0.0.1)
  *   MYSQL_PORT / MYSQLPORT (default: 3306)
  *   MYSQL_USER / MYSQLUSER (requerido sin URL)
  *   MYSQL_PASSWORD / MYSQLPASSWORD

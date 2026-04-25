@@ -99,14 +99,11 @@ docker compose down -v
 
 ## Despliegue en producción
 
-**Vercel no puede correr phpMyAdmin** (necesita PHP). Opciones reales:
+**Vercel** aloja el frontend y el API serverless; **no** puede ejecutar este `docker-compose` (MySQL + phpMyAdmin) en el mismo deploy.
 
-1. **Railway** — despliega este mismo `docker-compose.yml` con un par de clics.
-2. **VPS propio** (Hetzner, DigitalOcean, Contabo) — `docker compose up -d` en el servidor.
-3. **Hosting compartido con cPanel** — crea la DB MySQL desde el panel, sube phpMyAdmin incluido.
-4. **DB administrada** (PlanetScale / Aiven / AWS RDS) + phpMyAdmin en otro lado.
-
-En todos los casos define en Vercel las variables `MYSQL_URL` o `MYSQL_HOST/USER/PASSWORD/DATABASE` con los datos del servidor remoto y activa `MYSQL_SSL=true`.
+- **Recomendado:** [Vercel](https://vercel.com) + [Supabase](https://supabase.com) (Postgres) — ver `env.example` en la raíz de la app. phpMyAdmin no aplica; usas el panel SQL de Supabase.
+- **Si necesitas MySQL en la nube** además: una base administrada (PlanetScale, Aiven, RDS, etc.) y en Vercel variables `MYSQL_URL` o `MYSQL_*` apuntando a ese host, con `MYSQL_SSL=true` si aplica. phpMyAdmin solo si lo despliegas en otro servidor o usas el cliente del proveedor.
+- **VPS propio** (Hetzner, DigitalOcean) — `docker compose up -d` en el servidor para MySQL + phpMyAdmin en local a esa máquina.
 
 ## Troubleshooting
 

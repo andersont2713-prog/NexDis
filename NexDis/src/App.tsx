@@ -765,7 +765,7 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
       />
       
       <header
-        className="backdrop-blur-xl px-4 py-3 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"
+        className="app-seller-main-header backdrop-blur-xl px-4 py-3 flex items-center justify-between shrink-0 border-b fixed top-0 left-0 right-0 max-w-md mx-auto z-50"
         style={{
           background: 'color-mix(in srgb, var(--app-bg) 75%, transparent)',
           borderColor: 'var(--app-border)',
@@ -779,7 +779,11 @@ function SellerLayout({ children, currentZone }: { children: React.ReactNode, cu
           >
             <Menu size={22} />
           </button>
-          <div className="flex items-center gap-2 min-w-0">
+          <div
+            className="notranslate flex items-center gap-2 min-w-0"
+            translate="no"
+            lang="en"
+          >
             <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold italic shadow-lg shadow-indigo-600/20 shrink-0 text-[11px]">
               ND
             </div>

@@ -20,6 +20,28 @@ let cachedPool: mysql.Pool | null | undefined;
 export function getMysqlPool(): mysql.Pool | null {
   if (cachedPool !== undefined) return cachedPool;
 
+  // Vercel (VERCEL=1): ignorar MySQL apuntando a localhost — suele ser copia
+  // de .env local; sin esto, MySQL gana a Supabase y el pool falla o no es la nube.
+  if (process.env.VERCEL) {
+    const u = (process.env.MYSQL_URL ?? '').toLowerCase();
+    const h = (
+      process.env.MYSQL_HOST ||
+      process.env.MYSQLHOST ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
+    const looksLocal =
+      u.includes('127.0.0.1') ||
+      u.includes('localhost') ||
+      h === '127.0.0.1' ||
+      h === 'localhost';
+    if (looksLocal) {
+      cachedPool = null;
+      return null;
+    }
+  }
+
   const url = process.env.MYSQL_URL?.trim();
 
   const user =

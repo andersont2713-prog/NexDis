@@ -1,0 +1,10 @@
+# Railway: https://docs.railway.app/deploy/config-as-code
+# En el dashboard, Root Directory = carpeta de este archivo (p. ej. NexDis).
+
+[build]
+buildCommand = "npm run build"
+
+[deploy]
+startCommand = "NODE_ENV=production npm start"
+healthcheckPath = "/"
+restartPolicyType = "ON_FAILURE"
